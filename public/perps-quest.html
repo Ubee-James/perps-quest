@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 <style>
 :root {
+  /* ── DARK MODE (default) ── */
   --bg:#0c0c0f;--surface:#13131a;--s2:#1a1a24;--s3:#20202e;
   --border:rgba(255,255,255,0.07);--b2:rgba(255,255,255,0.12);--b3:rgba(255,255,255,0.18);
   --text:#f0eff5;--muted:rgba(240,239,245,0.42);--muted2:rgba(240,239,245,0.18);
@@ -15,7 +16,79 @@
   --red:#e06464;--rdim:rgba(224,100,100,0.13);
   --blue:#7eb8d4;--bdim:rgba(126,184,212,0.13);
   --accent:#c9a96e;--purple:#a78bfa;--pdim:rgba(167,139,250,0.13);
+  --shadow:rgba(0,0,0,0.3);
 }
+
+/* ── LIGHT MODE ── */
+html.light {
+  --bg:#f5f4f0;--surface:#ffffff;--s2:#eeede9;--s3:#e5e4df;
+  --border:rgba(0,0,0,0.08);--b2:rgba(0,0,0,0.12);--b3:rgba(0,0,0,0.18);
+  --text:#1a1814;--muted:rgba(26,24,20,0.5);--muted2:rgba(26,24,20,0.25);
+  --amber:#b8742a;--adim:rgba(184,116,42,0.10);--amed:rgba(184,116,42,0.20);
+  --green:#2e8a5c;--gdim:rgba(46,138,92,0.10);
+  --red:#c0392b;--rdim:rgba(192,57,43,0.10);
+  --blue:#2980b9;--bdim:rgba(41,128,185,0.10);
+  --accent:#9a6b2e;--purple:#6c3fc7;--pdim:rgba(108,63,199,0.10);
+  --shadow:rgba(0,0,0,0.10);
+}
+
+/* ── THEME TOGGLE BUTTON ── */
+.theme-toggle{
+  width:34px;height:34px;border-radius:50%;
+  background:var(--surface);border:1px solid var(--b2);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:.95rem;flex-shrink:0;
+  transition:background .15s,border-color .15s,transform .15s;
+  user-select:none;
+}
+.theme-toggle:hover{background:var(--s2);transform:scale(1.08);}
+
+/* Light mode: invert a few things that look off */
+html.light .logo em,html.light .dt-logo em,html.light .comp-title em,
+html.light .dt-content-title em,html.light .headline em{color:var(--accent);}
+html.light .n-active{box-shadow:0 0 0 5px rgba(184,116,42,.08);}
+html.light .bnav{background:rgba(245,244,240,.96);}
+html.light .dt-sidebar{background:#ffffff;}
+html.light .map-header,html.light .s-hdr,html.light .l-header,html.light .sim-header,
+html.light .cta-bar,html.light .lp-track,html.light .ticker{background:var(--bg);}
+html.light .share-card{background:linear-gradient(135deg,#ffffff 0%,#eeede9 100%);}
+html.light .result-sheet,html.light .sheet{background:var(--surface);}
+html.light .g-input{background:var(--surface);}
+html.light .col-input{background:var(--surface);}
+html.light canvas{filter:none;}
+html.light .funding-bar{background:var(--s2);}
+html.light .prog-fill,.lp-fill,.dt-xp-fill{background:linear-gradient(90deg,var(--amber),var(--accent));}
+html.light .exec-long{background:#2e8a5c;color:#fff;}
+html.light .exec-short{background:#c0392b;color:#fff;}
+html.light .btn-cont{background:var(--amber);color:#fff;}
+html.light .cta-btn{background:var(--amber);color:#fff;}
+html.light .cta-btn.green{background:var(--green);color:#fff;}
+html.light .sbtn-go{background:var(--amber);color:#fff;}
+html.light .dt-nav-item.on{background:rgba(184,116,42,.1);color:var(--amber);}
+html.light .n-active{background:rgba(184,116,42,.08);border-color:rgba(184,116,42,.5);color:var(--amber);}
+html.light .n-done{background:rgba(46,138,92,.08);border-color:rgba(46,138,92,.4);color:var(--green);}
+html.light .lev-slider::-webkit-slider-thumb{background:var(--amber);}
+html.light .streak-day.today{background:var(--amber);color:#fff;}
+html.light .streak-day.done{background:rgba(184,116,42,.12);color:var(--amber);}
+html.light .ticker-price.up{color:var(--green);}
+html.light .ticker-price.dn{color:var(--red);}
+html.light .dt-ticker-big.up{color:var(--green);}
+html.light .dt-ticker-big.dn{color:var(--red);}
+html.light .opt:hover:not(.answered){background:var(--s2);}
+html.light .tour-bubble{background:var(--amber);}
+html.light .xp-chip{color:var(--amber);}
+html.light .final-tag{color:var(--amber);background:var(--adim);}
+html.light .sd{background:var(--green);}
+html.light .dot-active{background:var(--amber);}
+html.light .dot-done{background:var(--green);}
+html.light .profile-avatar,.dt-avatar,.comp-glyph{border-color:rgba(184,116,42,.3);}
+html.light .freeze-btn{background:rgba(41,128,185,.08);color:var(--blue);border-color:rgba(41,128,185,.25);}
+html.light .rs-btn-trade{background:var(--amber);color:#fff;}
+html.light .share-copy{background:var(--amber);color:#fff;}
+html.light .tc-pos{color:var(--green);background:rgba(46,138,92,.1);}
+html.light .tc-neg{color:var(--red);background:rgba(192,57,43,.1);}
+html.light .ticker-change.tc-pos{color:var(--green);background:rgba(46,138,92,.1);}
+html.light .ticker-change.tc-neg{color:var(--red);background:rgba(192,57,43,.1);}
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden;}
 
@@ -265,7 +338,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .prog-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--amber),var(--accent));transition:width .6s cubic-bezier(.4,0,.2,1);}
 
 /* BOTTOM NAV */
-.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:rgba(12,12,15,.96);border-top:1px solid var(--border);backdrop-filter:blur(20px);display:flex;z-index:100;padding:8px 0 max(10px,env(safe-area-inset-bottom));}
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:rgba(12,12,15,.96);border-top:1px solid var(--border);backdrop-filter:blur(20px);display:flex;z-index:100;padding:8px 0 max(10px,env(safe-area-inset-bottom));}@media(min-width:900px){.bnav{display:none!important;}}
 .nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.6rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--muted2);cursor:pointer;padding:4px 0;transition:color .15s;border:none;background:none;}
 .nb .ni{font-size:1.05rem;line-height:1;}
 .nb:hover{color:var(--muted);}
@@ -404,7 +477,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .card.active{opacity:1;pointer-events:all;transform:translateX(0);}
 .card.exiting{opacity:0;transform:translateX(-40px);}
 .card.entering{opacity:0;transform:translateX(40px);}
-.cta-bar{flex-shrink:0;padding:12px 20px max(18px,env(safe-area-inset-bottom));border-top:1px solid var(--border);background:var(--bg);}
+.cta-bar{flex-shrink:0;padding:12px 20px max(80px,calc(env(safe-area-inset-bottom) + 70px));border-top:1px solid var(--border);background:var(--bg);}@media(min-width:900px){.cta-bar{padding:12px 20px 24px;}}
 .cta-btn{width:100%;padding:14px;background:var(--amber);color:#0c0c0f;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:600;cursor:pointer;letter-spacing:.01em;transition:background .15s,transform .12s,opacity .15s;}
 .cta-btn:hover{background:#c8893d;transform:translateY(-1px);}
 .cta-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;}
@@ -680,6 +753,7 @@ canvas#pnlChart{display:block;}
     <div class="hdr-chips">
       <div class="streak-chip" id="streakChip" onclick="showStreakSheet()">🔥 <span id="streakVal">7</span></div>
       <div class="chip">💎 <span id="gemsVal">340</span></div>
+      <div class="theme-toggle" id="themeToggleMobile" onclick="toggleTheme()" title="Toggle light/dark mode">🌙</div>
     </div>
   </div>
   <div class="prog-strip">
@@ -899,6 +973,292 @@ canvas#pnlChart{display:block;}
   <button class="nb"     onclick="navTo('screen-glossary');renderGlossary()"><span class="ni">≡</span>Glossary</button>
   <button class="nb"     onclick="navTo('screen-profile');renderProfile()"><span class="ni">○</span>Profile</button>
 </div>
+
+<!-- ═══════════════════════════════════════
+     DESKTOP SHELL (visible ≥ 900px only)
+═══════════════════════════════════════ -->
+<div class="desktop-shell" id="desktopShell">
+
+  <!-- SIDEBAR -->
+  <div class="dt-sidebar">
+    <div class="dt-logo">Perps<em>Quest</em></div>
+    <div class="dt-user">
+      <div class="dt-avatar">◈</div>
+      <div class="dt-user-info">
+        <div class="dt-user-name">Apprentice Trader</div>
+        <div class="dt-user-level" id="dtLevel">Level 3</div>
+      </div>
+    </div>
+    <div class="dt-xp-strip">
+      <div class="dt-xp-meta"><span>XP Progress</span><span><strong id="dtXP">550</strong> / 1000</span></div>
+      <div class="dt-xp-bar"><div class="dt-xp-fill" id="dtXPFill" style="width:55%"></div></div>
+    </div>
+    <nav class="dt-nav">
+      <button class="dt-nav-item on" id="dtnav-map" onclick="dtNavTo('map')"><span class="dt-ni">◎</span>Learning Map</button>
+      <button class="dt-nav-item" id="dtnav-sim" onclick="dtNavTo('sim')"><span class="dt-ni">⇄</span>Paper Trader</button>
+      <div class="dt-nav-divider"></div>
+      <button class="dt-nav-item" id="dtnav-lb" onclick="dtNavTo('lb')"><span class="dt-ni">↑</span>Leaderboard</button>
+      <button class="dt-nav-item" id="dtnav-glossary" onclick="dtNavTo('glossary')"><span class="dt-ni">≡</span>Glossary</button>
+      <button class="dt-nav-item" id="dtnav-profile" onclick="dtNavTo('profile')"><span class="dt-ni">○</span>Profile</button>
+    </nav>
+    <div class="dt-sidebar-chips">
+      <div class="dt-chip">🔥 <span id="dtStreak">7</span></div>
+      <div class="dt-chip">💎 <span id="dtGems">340</span></div>
+    </div>
+    <div style="padding:12px 18px 0;">
+      <button class="theme-toggle" id="themeToggleDesktop" onclick="toggleTheme()" style="width:100%;border-radius:8px;gap:8px;font-size:.82rem;font-weight:500;color:var(--muted);" title="Toggle light/dark mode">
+        <span id="themeIcon">🌙</span> <span id="themeLabel">Dark mode</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="dt-main">
+
+    <!-- MAP VIEW -->
+    <div class="dt-content" id="dt-view-map" style="display:flex;flex-direction:column;">
+      <div class="dt-content-hdr">
+        <div>
+          <div class="dt-content-title">Learning <em>Map</em></div>
+          <div class="dt-content-sub">World 1 · The Fundamentals</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="prog-bar" style="width:140px"><div class="prog-fill" id="dtMapProgFill" style="width:55%"></div></div>
+        </div>
+      </div>
+      <div class="dt-scroll"><div class="track dt-track" id="dtTrack"></div></div>
+    </div>
+    <div class="dt-panel" id="dt-panel-map" style="display:flex;flex-direction:column;">
+      <div class="dt-panel-section">
+        <div class="dt-panel-label">Your Progress</div>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+          <svg width="64" height="64" viewBox="0 0 64 64" style="flex-shrink:0">
+            <circle cx="32" cy="32" r="26" fill="none" stroke="var(--s2)" stroke-width="6"/>
+            <circle cx="32" cy="32" r="26" fill="none" stroke="var(--amber)" stroke-width="6"
+              stroke-dasharray="163" id="dtProgCircle" stroke-dashoffset="106"
+              stroke-linecap="round" transform="rotate(-90 32 32)" style="transition:stroke-dashoffset .6s"/>
+          </svg>
+          <div style="font-size:.82rem;color:var(--muted);line-height:1.5;">
+            <strong style="color:var(--text);display:block;font-size:1.1rem;" id="dtLessonsComplete">3 / 6</strong>
+            lessons complete
+          </div>
+        </div>
+        <div class="fact-list" style="margin-bottom:0">
+          <div class="fact"><div class="f-icon">🔥</div><div class="f-text"><strong id="dtStreakFact">7-day</strong> learning streak</div></div>
+          <div class="fact"><div class="f-icon">✦</div><div class="f-text"><strong id="dtXPFact">550 XP</strong> earned this world</div></div>
+        </div>
+      </div>
+      <div class="dt-panel-section">
+        <div class="dt-panel-label">Next Up</div>
+        <div id="dtNextLesson" style="font-size:.85rem;color:var(--muted);line-height:1.6"></div>
+      </div>
+      <div class="dt-panel-section">
+        <div class="dt-panel-label">Quick Tip</div>
+        <div class="dt-quick-def">
+          <div class="dt-qd-term">Funding Rate</div>
+          <div class="dt-qd-def">Every 8 hours, a fee is paid between longs and shorts. When positive, longs pay shorts — keeping perp prices anchored to spot.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LESSON VIEW -->
+    <div class="dt-content" id="dt-view-lesson" style="display:none;flex-direction:column;">
+      <div class="dt-content-hdr">
+        <div>
+          <div class="dt-content-title" id="dtLessonTitle">Lesson</div>
+          <div class="dt-content-sub" id="dtSlideCounter">Slide 1</div>
+        </div>
+        <div class="xp-chip" id="dtLessonXP">+200 xp</div>
+      </div>
+      <div class="dt-lp">
+        <div class="lp-bar"><div class="lp-fill" id="dtLpFill" style="width:0%"></div></div>
+        <div class="lp-label" id="dtLpLabel">0/5</div>
+      </div>
+      <div id="dtLessonStage" style="flex:1;position:relative;overflow:hidden;"></div>
+      <div class="dt-lesson-cta">
+        <button class="cta-btn" id="dtCtaBtn" onclick="dtLessonAdvance()">Continue</button>
+      </div>
+    </div>
+    <div class="dt-panel" id="dt-panel-lesson" style="display:none;flex-direction:column;">
+      <div class="dt-panel-section">
+        <div class="dt-panel-label">About This Lesson</div>
+        <div id="dtLessonMeta" style="font-size:.82rem;color:var(--muted);line-height:1.7"></div>
+      </div>
+      <div class="dt-panel-section">
+        <div class="dt-panel-label">Key Terms</div>
+        <div id="dtLessonGloss" style="display:flex;flex-direction:column;gap:6px;font-size:.82rem;color:var(--muted)">Tap any underlined term in the lesson to see its definition.</div>
+      </div>
+    </div>
+
+    <!-- SIMULATOR VIEW -->
+    <div class="dt-content" id="dt-view-sim" style="display:none;flex-direction:column;">
+      <div class="dt-content-hdr">
+        <div>
+          <div class="dt-content-title">Paper <em>Trader</em></div>
+          <div class="dt-content-sub">Simulated · No real funds · Real 30d market data</div>
+        </div>
+        <div class="balance-badge">💼 <strong id="dtBalance">$10,000</strong></div>
+      </div>
+      <div style="padding:12px 28px 0;flex-shrink:0;">
+        <div class="asset-tabs" id="dtAssetTabs" style="padding:0;border:none;gap:8px;"></div>
+      </div>
+      <div class="dt-scroll" id="dtSimBody">
+        <div id="dtPosPanel" style="display:none;background:var(--surface);border:1px solid var(--b2);border-radius:12px;padding:16px;margin-bottom:20px;">
+          <div style="font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Open Position</div>
+          <div class="dt-pos-stats">
+            <div class="dt-pos-stat"><div class="dt-ps-label">Side</div><div class="dt-ps-val amber" id="dtPpDir">Long</div></div>
+            <div class="dt-pos-stat"><div class="dt-ps-label">Entry</div><div class="dt-ps-val" id="dtPpEntry">—</div></div>
+            <div class="dt-pos-stat"><div class="dt-ps-label">P&amp;L</div><div class="dt-ps-val" id="dtPpPnl">$0</div></div>
+            <div class="dt-pos-stat"><div class="dt-ps-label">Liq.</div><div class="dt-ps-val neg" id="dtPpLiq">—</div></div>
+          </div>
+          <div id="dtFundingDrain" style="font-size:.7rem;color:var(--muted);text-align:center;margin:8px 0;display:none;"></div>
+          <button class="close-pos-btn" onclick="dtClosePosition()">Close Position</button>
+        </div>
+        <div class="form-section">
+          <div class="form-label">Direction</div>
+          <div class="dir-toggle">
+            <div class="dir-btn long on" id="dtBtnLong" onclick="dtSetDir('long')">↑ Long</div>
+            <div class="dir-btn short" id="dtBtnShort" onclick="dtSetDir('short')">↓ Short</div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-label">Leverage <span id="dtLevRisk" class="lev-risk risk-low">Low risk</span></div>
+          <div class="lev-display"><div class="lev-num" id="dtLevNum">5</div><div class="lev-x">×</div></div>
+          <input class="lev-slider" type="range" id="dtLevSlider" min="1" max="50" value="5" oninput="dtUpdateLev(this.value)">
+          <div class="lev-ticks"><span class="lev-tick">1×</span><span class="lev-tick">10×</span><span class="lev-tick">25×</span><span class="lev-tick">50×</span></div>
+        </div>
+        <div class="form-section">
+          <div class="form-label">Collateral</div>
+          <div class="col-input-wrap"><span class="col-prefix">$</span><input class="col-input" type="number" id="dtColInput" value="500" min="10" oninput="dtUpdateSimSummary()"></div>
+          <div class="col-presets">
+            <div class="col-pre" onclick="dtSetCol(100)">$100</div>
+            <div class="col-pre" onclick="dtSetCol(250)">$250</div>
+            <div class="col-pre" onclick="dtSetCol(500)">$500</div>
+            <div class="col-pre" onclick="dtSetCol(1000)">$1k</div>
+          </div>
+        </div>
+        <div class="order-summary">
+          <div class="os-row"><span class="os-label">Position size</span><span class="os-val amber" id="dtOsPosSize">—</span></div>
+          <div class="os-row"><span class="os-label">Entry price</span><span class="os-val" id="dtOsEntry">—</span></div>
+          <div class="os-row"><span class="os-label">Liquidation price</span><span class="os-val red" id="dtOsLiq">—</span></div>
+          <div class="os-row"><span class="os-label">Est. funding / 8h</span><span class="os-val" id="dtOsFunding">—</span></div>
+          <div class="os-row"><span class="os-label">Fees (0.05%)</span><span class="os-val" id="dtOsFees">—</span></div>
+        </div>
+        <button class="exec-btn exec-long" id="dtExecBtn" onclick="dtOpenPosition()">Open Long Position</button>
+      </div>
+    </div>
+    <div class="dt-panel" id="dt-panel-sim" style="display:none;flex-direction:column;">
+      <div class="dt-panel-section">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px;">
+          <div style="font-size:.72rem;font-weight:600;letter-spacing:.04em;color:var(--muted)" id="dtTickerPair">BTC / USD</div>
+          <div class="ticker-change tc-pos" id="dtTickerChange">—</div>
+        </div>
+        <div class="dt-ticker-big" id="dtTickerPrice">—</div>
+        <div style="font-size:.7rem;color:var(--muted);margin-bottom:14px;">30d real data · live simulation</div>
+        <div class="dt-chart-desktop" style="height:160px;position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--border);">
+          <canvas id="priceChartDesktop"></canvas>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.76rem;color:var(--muted)" id="dtChartLoading">Loading…</div>
+        </div>
+      </div>
+      <div class="dt-panel-section">
+        <div class="dt-panel-label">Funding Rate</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div class="funding-rate pos" id="dtFundingRate" style="font-size:.9rem;font-weight:700;">+0.01%</div>
+          <div style="text-align:right;">
+            <div style="font-size:.62rem;color:var(--muted);margin-bottom:2px;">Next in</div>
+            <div style="font-size:.8rem;font-weight:700;color:var(--amber);font-variant-numeric:tabular-nums;" id="dtFundingClock">7:59:59</div>
+          </div>
+        </div>
+        <div class="funding-mini-bar" style="width:100%"><div class="funding-mini-fill" id="dtFundingMiniFill" style="width:100%"></div></div>
+        <div style="font-size:.74rem;color:var(--muted);margin-top:10px;line-height:1.5;">When positive, <strong style="color:var(--text)">longs pay shorts</strong> every 8h. Compounds on open positions.</div>
+      </div>
+      <div class="dt-panel-section">
+        <div class="dt-panel-label">Recent Trades</div>
+        <div id="dtTradeHistory" style="font-size:.78rem;color:var(--muted);">No trades yet.</div>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD VIEW -->
+    <div class="dt-content" id="dt-view-lb" style="display:none;flex-direction:column;">
+      <div class="dt-content-hdr">
+        <div>
+          <div class="dt-content-title">Leader<em>board</em></div>
+          <div class="dt-content-sub">Top traders this week</div>
+        </div>
+      </div>
+      <div class="dt-scroll"><div id="dtLbWrap"></div></div>
+    </div>
+    <div class="dt-panel" id="dt-panel-lb" style="display:none;flex-direction:column;">
+      <div class="dt-panel-section">
+        <div class="dt-panel-label">Your Rank</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:2.5rem;color:var(--amber);margin-bottom:6px;">#6</div>
+        <div style="font-size:.82rem;color:var(--muted);line-height:1.6;">Complete lessons and win trades to climb the board.</div>
+      </div>
+      <div class="dt-panel-section">
+        <div class="dt-panel-label">How to earn XP</div>
+        <div class="fact-list" style="margin-bottom:0">
+          <div class="fact"><div class="f-icon">↑</div><div class="f-text">Complete lessons</div></div>
+          <div class="fact"><div class="f-icon">🔥</div><div class="f-text">Maintain your daily streak</div></div>
+          <div class="fact"><div class="f-icon">⇄</div><div class="f-text">Win simulated trades</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GLOSSARY VIEW -->
+    <div class="dt-content" id="dt-view-glossary" style="display:none;flex-direction:column;">
+      <div class="dt-content-hdr">
+        <div>
+          <div class="dt-content-title">Glos<em>sary</em></div>
+          <div class="dt-content-sub">Every perps term, defined simply</div>
+        </div>
+      </div>
+      <div style="padding:12px 28px 0;flex-shrink:0;">
+        <input class="g-input" id="dtGlossarySearch" placeholder="Search terms…" oninput="dtFilterGlossary(this.value)">
+      </div>
+      <div class="dt-scroll"><div id="dtGlossaryWrap"></div></div>
+    </div>
+    <div class="dt-panel" id="dt-panel-glossary" style="display:none;flex-direction:column;">
+      <div class="dt-panel-section" id="dtGlossPanel">
+        <div class="dt-panel-label">Definition</div>
+        <div class="dt-quick-def">
+          <div class="dt-qd-term" style="color:var(--muted2);">Select a term</div>
+          <div class="dt-qd-def" style="color:var(--muted2);">Click any term on the left to see its full definition here.</div>
+        </div>
+      </div>
+      <div class="dt-panel-section">
+        <div class="dt-panel-label">Did you know?</div>
+        <div style="font-size:.82rem;color:var(--muted);line-height:1.6;">"Perpetual" refers to the fact that unlike traditional futures, these contracts have no settlement date — you can hold indefinitely as long as you keep paying funding.</div>
+      </div>
+    </div>
+
+    <!-- PROFILE VIEW -->
+    <div class="dt-content" id="dt-view-profile" style="display:none;flex-direction:column;">
+      <div class="dt-content-hdr">
+        <div>
+          <div class="dt-content-title">Your <em>Profile</em></div>
+          <div class="dt-content-sub">Progress, badges and streak</div>
+        </div>
+        <button onclick="showShareCard()" style="background:var(--adim);border:1px solid rgba(212,146,74,.3);color:var(--amber);border-radius:8px;padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;">Share Badge</button>
+      </div>
+      <div class="dt-scroll"><div id="dtProfileWrap"></div></div>
+    </div>
+    <div class="dt-panel" id="dt-panel-profile" style="display:none;flex-direction:column;">
+      <div class="dt-panel-section">
+        <div class="dt-panel-label">Streak</div>
+        <div class="streak-section" style="border:none;padding:0;background:none;margin-bottom:0;">
+          <div class="streak-section-title">🔥 <span id="dtStreakTitle">7</span>-day streak</div>
+          <div class="streak-days" id="dtStreakDays"></div>
+          <button class="freeze-btn" id="dtFreezeBtn" onclick="dtFreezeStreak()" style="margin-top:12px;">❄ Use Streak Freeze</button>
+        </div>
+      </div>
+      <div class="dt-panel-section">
+        <div class="dt-panel-label">Recent Trades</div>
+        <div id="dtRecentTrades" style="font-size:.78rem;color:var(--muted);">No trades yet.</div>
+      </div>
+    </div>
+
+  </div><!-- /dt-main -->
+</div><!-- /desktop-shell -->
 
 <script>
 /* ═══════════════════ STATE ═══════════════════ */
@@ -1779,6 +2139,36 @@ if(S.streakFrozen)document.getElementById('streakChip').classList.add('frozen');
 /* ═══════════════════ INIT ═══════════════════ */
 renderMap();
 renderGlossary();
+
+/* ═══════════════════ THEME ═══════════════════ */
+function toggleTheme(){
+  const isLight=document.documentElement.classList.toggle('light');
+  try{localStorage.setItem('pq-theme',isLight?'light':'dark');}catch(e){}
+  updateThemeUI(isLight);
+}
+
+function updateThemeUI(isLight){
+  const icon=isLight?'☀':'🌙';
+  const label=isLight?'Light mode':'Dark mode';
+  const mob=document.getElementById('themeToggleMobile');
+  const desk=document.getElementById('themeToggleDesktop');
+  const di=document.getElementById('themeIcon');
+  const dl=document.getElementById('themeLabel');
+  if(mob)mob.textContent=icon;
+  if(di)di.textContent=icon;
+  if(dl)dl.textContent=label;
+}
+
+// Restore saved theme on load
+(function(){
+  try{
+    const saved=localStorage.getItem('pq-theme');
+    if(saved==='light'){
+      document.documentElement.classList.add('light');
+      updateThemeUI(true);
+    }
+  }catch(e){}
+})();
 
 /* ══════════════════════════════════════════════════
    DESKTOP ENGINE
