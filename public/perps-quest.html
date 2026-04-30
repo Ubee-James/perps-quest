@@ -18,8 +18,223 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden;}
+
+/* ── MOBILE SHELL (default) ── */
 .app{max-width:480px;margin:0 auto;height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden;}
-@media(min-width:481px){.app{border-left:1px solid var(--border);border-right:1px solid var(--border);}}
+@media(min-width:481px) and (max-width:899px){.app{border-left:1px solid var(--border);border-right:1px solid var(--border);}}
+
+/* ════════════════════════════════════════
+   DESKTOP LAYOUT  ≥ 900px
+   Structure:
+   body
+   └── .desktop-shell
+       ├── .dt-sidebar        (fixed left, 220px)
+       └── .dt-main           (flex-1, scrollable)
+           ├── .dt-content    (flex-1, max 680px)
+           └── .dt-panel      (320px, sim/profile context)
+════════════════════════════════════════ */
+@media(min-width:900px){
+  html,body{overflow:auto;}
+
+  /* Hide the mobile app wrapper entirely */
+  .app{display:none !important;}
+
+  /* Top-level desktop shell */
+  .desktop-shell{
+    display:flex;min-height:100vh;background:var(--bg);
+  }
+
+  /* ── SIDEBAR ── */
+  .dt-sidebar{
+    width:220px;flex-shrink:0;
+    background:var(--surface);
+    border-right:1px solid var(--border);
+    display:flex;flex-direction:column;
+    position:fixed;top:0;left:0;bottom:0;
+    z-index:50;
+    padding:0 0 24px;
+  }
+  .dt-logo{
+    padding:24px 22px 20px;
+    font-family:'DM Serif Display',serif;
+    font-size:1.35rem;letter-spacing:-.02em;
+    border-bottom:1px solid var(--border);
+    flex-shrink:0;
+  }
+  .dt-logo em{font-style:italic;color:var(--accent);}
+
+  .dt-user{
+    padding:16px 18px;display:flex;align-items:center;gap:10px;
+    border-bottom:1px solid var(--border);flex-shrink:0;
+  }
+  .dt-avatar{
+    width:36px;height:36px;border-radius:50%;
+    background:var(--adim);border:1.5px solid rgba(212,146,74,.4);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'DM Serif Display',serif;font-size:.95rem;color:var(--amber);
+    flex-shrink:0;
+  }
+  .dt-user-info{flex:1;min-width:0;}
+  .dt-user-name{font-size:.82rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dt-user-level{font-size:.7rem;color:var(--muted);margin-top:1px;}
+
+  .dt-xp-strip{padding:10px 18px 14px;flex-shrink:0;border-bottom:1px solid var(--border);}
+  .dt-xp-meta{display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted);margin-bottom:5px;}
+  .dt-xp-meta strong{color:var(--accent);}
+  .dt-xp-bar{height:3px;background:var(--s2);border-radius:2px;overflow:hidden;}
+  .dt-xp-fill{height:100%;background:linear-gradient(90deg,var(--amber),var(--accent));border-radius:2px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+
+  /* Nav links */
+  .dt-nav{flex:1;padding:10px 10px 0;display:flex;flex-direction:column;gap:2px;overflow-y:auto;}
+  .dt-nav::-webkit-scrollbar{width:0;}
+  .dt-nav-item{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 12px;border-radius:8px;
+    font-size:.85rem;font-weight:500;color:var(--muted);
+    cursor:pointer;transition:background .15s,color .15s;
+    border:none;background:none;width:100%;text-align:left;
+  }
+  .dt-nav-item:hover{background:var(--s2);color:var(--text);}
+  .dt-nav-item.on{background:var(--adim);color:var(--amber);}
+  .dt-nav-item .dt-ni{font-size:1rem;width:20px;text-align:center;flex-shrink:0;}
+  .dt-nav-divider{height:1px;background:var(--border);margin:8px 0;}
+
+  .dt-sidebar-chips{padding:14px 18px 0;display:flex;gap:7px;flex-wrap:wrap;}
+  .dt-chip{display:flex;align-items:center;gap:5px;background:var(--s2);border:1px solid var(--border);border-radius:20px;padding:5px 10px;font-size:.74rem;font-weight:500;color:var(--muted);}
+  .dt-chip span{color:var(--text);}
+
+  /* ── MAIN AREA ── */
+  .dt-main{
+    margin-left:220px;
+    flex:1;
+    display:flex;
+    min-height:100vh;
+  }
+
+  /* Content column */
+  .dt-content{
+    flex:1;
+    min-width:0;
+    max-width:680px;
+    display:flex;
+    flex-direction:column;
+    border-right:1px solid var(--border);
+  }
+
+  /* Right context panel */
+  .dt-panel{
+    width:320px;flex-shrink:0;
+    display:flex;flex-direction:column;
+    position:sticky;top:0;height:100vh;
+    overflow-y:auto;
+  }
+  .dt-panel::-webkit-scrollbar{width:0;}
+
+  /* ── CONTENT HEADER ── */
+  .dt-content-hdr{
+    flex-shrink:0;padding:22px 28px 18px;
+    border-bottom:1px solid var(--border);
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .dt-content-title{font-family:'DM Serif Display',serif;font-size:1.4rem;letter-spacing:-.02em;}
+  .dt-content-title em{font-style:italic;color:var(--accent);}
+  .dt-content-sub{font-size:.78rem;color:var(--muted);margin-top:3px;}
+
+  /* ── SCROLLABLE CONTENT BODY ── */
+  .dt-scroll{flex:1;overflow-y:auto;padding:24px 28px 60px;}
+  .dt-scroll::-webkit-scrollbar{width:4px;}
+  .dt-scroll::-webkit-scrollbar-track{background:transparent;}
+  .dt-scroll::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
+
+  /* MAP in desktop: wider track */
+  .dt-track{max-width:560px;}
+  .dt-track .node-row{animation:none;opacity:1;transform:none;}
+
+  /* LESSON in desktop: card layout */
+  .dt-lesson-wrap{display:flex;flex-direction:column;height:100%;}
+  .dt-lesson-stage{flex:1;position:relative;overflow:hidden;}
+  .dt-lesson-cta{flex-shrink:0;padding:16px 28px 24px;border-top:1px solid var(--border);}
+  .dt-lesson-cta .cta-btn{max-width:360px;}
+
+  /* LESSON progress bar in desktop */
+  .dt-lp{padding:12px 28px 0;flex-shrink:0;display:flex;align-items:center;gap:10px;}
+  .dt-lp .lp-bar{flex:1;height:3px;background:var(--s2);border-radius:2px;overflow:hidden;}
+  .dt-lp .lp-fill{height:100%;background:linear-gradient(90deg,var(--amber),var(--accent));border-radius:2px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+  .dt-lp .lp-label{font-size:.72rem;color:var(--muted);flex-shrink:0;}
+
+  /* RIGHT PANEL sections */
+  .dt-panel-section{padding:20px 22px;border-bottom:1px solid var(--border);}
+  .dt-panel-label{font-size:.67rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+
+  /* Sim right panel specifics */
+  .dt-ticker-big{font-family:'DM Serif Display',serif;font-size:2rem;letter-spacing:-.03em;margin-bottom:4px;transition:color .3s;}
+  .dt-ticker-big.up{color:var(--green);}
+  .dt-ticker-big.dn{color:var(--red);}
+  .dt-chart-desktop{height:180px;position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--border);}
+  canvas#priceChartDesktop{display:block;}
+
+  .dt-pos-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+  .dt-pos-stat{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;}
+  .dt-ps-label{font-size:.62rem;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
+  .dt-ps-val{font-size:.9rem;font-weight:600;}
+  .dt-ps-val.pos{color:var(--green);}
+  .dt-ps-val.neg{color:var(--red);}
+  .dt-ps-val.amber{color:var(--amber);}
+
+  /* Glossary right panel */
+  .dt-quick-def{background:var(--adim);border:1px solid rgba(212,146,74,.2);border-radius:10px;padding:14px;}
+  .dt-qd-term{font-family:'DM Serif Display',serif;font-size:1.1rem;margin-bottom:6px;}
+  .dt-qd-def{font-size:.82rem;line-height:1.6;color:var(--muted);}
+
+  /* Progress panel */
+  .dt-prog-ring{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+  .dt-ring-label{font-size:.82rem;color:var(--muted);line-height:1.5;}
+  .dt-ring-label strong{color:var(--text);display:block;font-size:1.1rem;}
+
+  /* Sheets become centered modals on desktop */
+  .sheet{
+    max-width:480px;
+    border-radius:16px !important;
+    bottom:auto !important;
+    top:50% !important;
+    transform:translateX(-50%) translateY(-50%) scale(0.95) !important;
+    transition:transform .25s cubic-bezier(.32,.72,0,1),opacity .25s !important;
+    opacity:0 !important;
+  }
+  .sheet.open{
+    transform:translateX(-50%) translateY(-50%) scale(1) !important;
+    opacity:1 !important;
+  }
+  .sh-handle{display:none;}
+
+  /* Result/share modals — center on desktop */
+  .result-sheet{border-radius:16px;max-width:420px;margin:0 auto;}
+  .result-modal{align-items:center;}
+  .share-card-wrap{max-width:380px;}
+
+  /* Tour bubble wider on desktop */
+  .tour-bubble{max-width:320px;}
+
+  /* Hide back buttons in desktop sidebar navigation */
+  .dt-content .back-btn{display:none;}
+
+  /* Wider fonts for desktop */
+  .headline{font-size:2.2rem;}
+  .headline.sm{font-size:1.8rem;}
+  .body-text{font-size:.92rem;}
+  .quiz-q{font-size:1.35rem;}
+
+  /* Lesson cards need full height in desktop */
+  .dt-lesson-stage .card{padding:28px 32px 24px;}
+}
+
+/* ── LARGE DESKTOP ≥ 1200px: sidebar slightly wider ── */
+@media(min-width:1200px){
+  .dt-sidebar{width:240px;}
+  .dt-main{margin-left:240px;}
+  .dt-content{max-width:780px;}
+  .dt-panel{width:360px;}
+}
 
 /* SCREENS */
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);transition:transform 0.38s cubic-bezier(0.4,0,0.2,1),opacity 0.38s ease;opacity:0;pointer-events:none;transform:translateX(100%);}
@@ -1152,7 +1367,7 @@ async function fetchPriceData(){
   for(const sym of Object.keys(ASSETS)){
     const coinId={BTC:'bitcoin',ETH:'ethereum',SOL:'solana'}[sym];
     try{
-      const r = await fetch(`/api/prices?coin=${coinId}`);
+      const r=await fetch(`https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=30&interval=daily`);
       const d=await r.json();
       priceData[sym]=d.prices.map(p=>p[1]);
     }catch(e){
@@ -1564,6 +1779,390 @@ if(S.streakFrozen)document.getElementById('streakChip').classList.add('frozen');
 /* ═══════════════════ INIT ═══════════════════ */
 renderMap();
 renderGlossary();
+
+/* ══════════════════════════════════════════════════
+   DESKTOP ENGINE
+══════════════════════════════════════════════════ */
+const IS_DESKTOP=()=>window.innerWidth>=900;
+let dtActiveView='map',dtSimDir='long',dtSimInitDone=false,dtChartCtx2=null,dtChartW2=0,dtChartH2=0;
+
+function dtNavTo(view){
+  if(!IS_DESKTOP())return;
+  dtActiveView=view;
+  ['map','lesson','sim','lb','glossary','profile'].forEach(v=>{
+    const c=document.getElementById('dt-view-'+v),p=document.getElementById('dt-panel-'+v),n=document.getElementById('dtnav-'+v);
+    if(c)c.style.display='none'; if(p)p.style.display='none'; if(n)n.classList.remove('on');
+  });
+  const ac=document.getElementById('dt-view-'+view),ap=document.getElementById('dt-panel-'+view),an=document.getElementById('dtnav-'+view);
+  if(ac)ac.style.display='flex'; if(ap)ap.style.display='flex'; if(an)an.classList.add('on');
+  if(view==='map')dtRenderMap(); if(view==='sim')dtInitSim();
+  if(view==='lb')dtRenderLB(); if(view==='glossary')dtRenderGlossary();
+  if(view==='profile')dtRenderProfile();
+}
+
+function dtRenderMap(){
+  const track=document.getElementById('dtTrack'); if(!track)return;
+  track.innerHTML='';
+  LESSONS.forEach((l,i)=>{
+    const isDone=S.completedLessons.has(i),isActive=!isDone&&(i===0||S.completedLessons.has(i-1)),isLocked=!isDone&&!isActive,isLast=i===LESSONS.length-1;
+    const row=document.createElement('div'); row.className=`node-row${isLocked?' locked-row':''}`;
+    const nodeClass=isDone?'node n-done':isActive?'node n-active':'node n-locked';
+    const dot=isDone?`<div class="ndot dot-done">✓</div>`:isActive?`<div class="ndot dot-active"></div>`:'';
+    const finalTag=l.boss?`<span class="final-tag">Final</span>`:'';
+    const tags=isLocked?`<div class="n-tags"><span class="tag">Locked</span></div>`:`<div class="n-tags"><span class="tag">${l.time}</span><span class="tag">${l.n} slides</span><span class="tag">+${l.xp} xp</span></div>`;
+    const stars=isDone?`<div class="stars-row">${[0,1,2].map(s=>`<div class="sd${s<l.stars?' ':' off'}"></div>`).join('')}</div>`:'';
+    const contBtn=isActive?`<button class="btn-cont" onclick="dtStartLesson(${i})">Start →</button>`:isDone?`<button class="btn-cont" style="background:var(--gdim);color:var(--green);border:1px solid rgba(92,184,138,.3)" onclick="dtStartLesson(${i})">Review</button>`:'';
+    const infoClass=`n-info${isActive?' active-info':''}${isLocked?' locked-info':''}`;
+    row.innerHTML=`${!isLast?`<div class="vline${isDone?' done':''}"></div>`:''}
+      <div class="n-col"><div class="${nodeClass}" ${!isLocked?`onclick="dtOpenSheet(${i})"`:''}>${l.glyph}${dot}</div></div>
+      <div class="${infoClass}" ${!isLocked?`onclick="dtOpenSheet(${i})"`:''}>
+        <div class="n-title">${l.name}${finalTag}</div><div class="n-sub">${l.desc}</div>${tags}${stars}${contBtn}</div>`;
+    track.appendChild(row);
+  });
+  const dv=document.createElement('div'); dv.className='divider';
+  dv.innerHTML=`<div class="div-line"></div><div class="div-text">World 2 · Coming Next</div><div class="div-line"></div>`;
+  track.appendChild(dv);
+  const w2=document.createElement('div'); w2.className='node-row locked-row';
+  w2.innerHTML=`<div class="n-col"><div class="node n-w2" style="font-family:monospace">◉</div></div><div class="n-info locked-info"><div class="n-title" style="color:var(--muted2)">Advanced Mechanics</div><div class="n-sub" style="opacity:.5">Mark vs index · Cross vs isolated · Open interest</div><div class="n-tags"><span class="tag">Complete World 1</span></div></div>`;
+  track.appendChild(w2);
+  const done=S.completedLessons.size,total=LESSONS.length;
+  const circ=document.getElementById('dtProgCircle');
+  if(circ){const r=26,full=2*Math.PI*r;circ.style.strokeDashoffset=full-(full*(done/total));}
+  const lc=document.getElementById('dtLessonsComplete'); if(lc)lc.textContent=`${done} / ${total}`;
+  const nextIdx=LESSONS.findIndex((_,i)=>!S.completedLessons.has(i));
+  const nl=document.getElementById('dtNextLesson');
+  if(nl&&nextIdx>=0){const l=LESSONS[nextIdx];nl.innerHTML=`<div style="font-weight:600;color:var(--text);margin-bottom:4px">${l.name}</div><div style="color:var(--muted)">${l.desc}</div><button class="btn-cont" style="margin-top:10px" onclick="dtStartLesson(${nextIdx})">Start →</button>`;}
+  else if(nl){nl.innerHTML=`<div style="color:var(--green);font-weight:600">All lessons complete! 🎉</div>`;}
+  const xf=document.getElementById('dtXPFact');if(xf)xf.textContent=`${S.xp} XP`;
+  const sf=document.getElementById('dtStreakFact');if(sf)sf.textContent=`${S.streak}-day`;
+  dtSyncSidebar();
+}
+
+function dtOpenSheet(i){openSheet(i);}
+
+let dtCurCard=0,dtQAnswered=false,dtQCorrect=false,dtCurLesson=0;
+function dtStartLesson(idx){
+  dtCurLesson=idx;dtCurCard=0;dtQAnswered=false;dtQCorrect=false;
+  const l=LESSONS[idx];
+  document.getElementById('dtLessonTitle').textContent=l.name;
+  document.getElementById('dtLessonXP').textContent=`+${l.xp} xp`;
+  const meta=document.getElementById('dtLessonMeta');
+  if(meta)meta.innerHTML=`<strong style="color:var(--text)">${l.n} slides</strong> · ${l.time}<br>+${l.xp} XP on completion<br><br>${l.desc}`;
+  const stage=document.getElementById('dtLessonStage'); stage.innerHTML='';
+  l.cards.forEach((c,ci)=>{
+    const div=document.createElement('div'); div.className='card'+(ci===0?' active':''); div.id=`dtlcard-${ci}`;
+    div.innerHTML=c.quiz?buildQuiz(c):c.render(); stage.appendChild(div);
+  });
+  const comp=document.createElement('div'); comp.className='card'; comp.id=`dtlcard-${l.cards.length}`;
+  comp.innerHTML=buildComplete(l); stage.appendChild(comp);
+  dtNavTo('lesson'); dtUpdateLUI();
+  setTimeout(()=>{ stage.querySelectorAll('.opt').forEach(o=>o.onclick=()=>dtHandleQ(o)); },100);
+}
+
+function dtHandleQ(opt){
+  if(dtQAnswered)return; dtQAnswered=true; dtQCorrect=opt.dataset.correct==='true';
+  const stage=document.getElementById('dtLessonStage');
+  stage.querySelectorAll('.opt').forEach(o=>o.classList.add('answered'));
+  opt.classList.add(dtQCorrect?'correct':'wrong');
+  if(!dtQCorrect){const c=stage.querySelector('.opt[data-correct="true"]');if(c)c.classList.add('correct');}
+  const fb=stage.querySelector('#qFb');
+  if(fb){fb.classList.add('show',dtQCorrect?'cfb':'wfb');
+    const ft=fb.querySelector('#fbTitle'),fb2=fb.querySelector('#fbBody');
+    if(ft)ft.textContent=dtQCorrect?'✓ Correct!':'✗ Not quite';
+    if(fb2)fb2.innerHTML=opt.dataset.expl;}
+  dtUpdateLUI();
+}
+
+function dtLessonAdvance(){
+  const l=LESSONS[dtCurLesson],total=l.cards.length+1;
+  if(dtCurCard>=total-1){completeLesson(dtCurLesson);dtSyncSidebar();dtNavTo('map');return;}
+  const prev=document.getElementById(`dtlcard-${dtCurCard}`);
+  if(prev){prev.classList.remove('active');prev.classList.add('exiting');setTimeout(()=>prev.classList.remove('exiting'),380);}
+  dtCurCard++;dtQAnswered=false;
+  const next=document.getElementById(`dtlcard-${dtCurCard}`);
+  if(next){next.classList.add('entering');requestAnimationFrame(()=>requestAnimationFrame(()=>{next.classList.remove('entering');next.classList.add('active');}));}
+  if(dtCurCard===l.cards.length&&next)next.innerHTML=buildComplete(l);
+  setTimeout(()=>{const s=document.getElementById('dtLessonStage');if(s)s.querySelectorAll('.opt').forEach(o=>o.onclick=()=>dtHandleQ(o));},100);
+  dtUpdateLUI();
+}
+
+function dtUpdateLUI(){
+  const l=LESSONS[dtCurLesson],total=l.cards.length,isComplete=dtCurCard===l.cards.length;
+  const pct=isComplete?100:(dtCurCard/total)*100;
+  const lf=document.getElementById('dtLpFill');if(lf)lf.style.width=pct+'%';
+  const ll=document.getElementById('dtLpLabel');if(ll)ll.textContent=`${dtCurCard}/${total}`;
+  const sc=document.getElementById('dtSlideCounter');if(sc)sc.textContent=isComplete?'Complete!':`Slide ${dtCurCard+1} of ${total}`;
+  const btn=document.getElementById('dtCtaBtn');if(!btn)return;
+  btn.className='cta-btn';
+  if(isComplete){btn.textContent='↩ Back to map';btn.disabled=false;btn.className='cta-btn green';}
+  else if(l.cards[dtCurCard]?.quiz){btn.disabled=!dtQAnswered;btn.textContent=dtQAnswered?'Continue →':'Select an answer';}
+  else{btn.disabled=false;btn.textContent=dtCurCard===total-1?'Finish →':'Continue →';}
+}
+
+function dtInitSim(){
+  if(dtSimInitDone)return; dtSimInitDone=true;
+  const tabs=document.getElementById('dtAssetTabs');
+  if(tabs)tabs.innerHTML=Object.keys(ASSETS).map(sym=>`<div class="asset-tab${sym===currentAsset?' on':''}" id="dtTab-${sym}" onclick="dtSwitchAsset('${sym}')"><span class="at-sym">${sym}</span><span class="at-price" id="dtTabPrice-${sym}">—</span><span class="at-chg" id="dtTabChg-${sym}">—</span></div>`).join('');
+  initSim();
+  setTimeout(dtSetupChart2,300);
+  dtUpdateSim();
+}
+
+function dtSwitchAsset(sym){
+  switchAsset(sym);
+  document.querySelectorAll('[id^="dtTab-"]').forEach(t=>t.classList.remove('on'));
+  const tab=document.getElementById('dtTab-'+sym);if(tab)tab.classList.add('on');
+  const pp=document.getElementById('dtTickerPair');if(pp)pp.textContent=ASSETS[sym].pair;
+  setTimeout(dtSetupChart2,100); dtUpdateSim();
+}
+
+function dtSetupChart2(){
+  const canvas=document.getElementById('priceChartDesktop');if(!canvas)return;
+  const wrap=canvas.parentElement;
+  canvas.width=wrap.clientWidth*devicePixelRatio; canvas.height=wrap.clientHeight*devicePixelRatio;
+  canvas.style.width=wrap.clientWidth+'px'; canvas.style.height=wrap.clientHeight+'px';
+  dtChartCtx2=canvas.getContext('2d'); dtChartCtx2.scale(devicePixelRatio,devicePixelRatio);
+  dtChartW2=wrap.clientWidth; dtChartH2=wrap.clientHeight;
+  dtDrawChart2();
+  const cl=document.getElementById('dtChartLoading');if(cl)cl.style.display='none';
+}
+
+function dtDrawChart2(){
+  if(!dtChartCtx2)return;
+  const pts=[...priceData[currentAsset]];if(pts.length<2)return;
+  const ctx=dtChartCtx2,w=dtChartW2,h=dtChartH2-4;
+  ctx.clearRect(0,0,w,h+4);
+  const mn=Math.min(...pts)*0.998,mx=Math.max(...pts)*1.002;
+  const sy=v=>h-((v-mn)/(mx-mn))*h, sx=i=>(i/(pts.length-1))*w;
+  const isUp=pts[pts.length-1]>=pts[0],lc=isUp?'#5cb88a':'#e06464';
+  const grad=ctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0,isUp?'rgba(92,184,138,0.18)':'rgba(224,100,100,0.18)');
+  grad.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.beginPath();ctx.moveTo(sx(0),sy(pts[0]));pts.forEach((v,i)=>ctx.lineTo(sx(i),sy(v)));
+  ctx.lineTo(sx(pts.length-1),h);ctx.lineTo(0,h);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+  ctx.beginPath();ctx.moveTo(sx(0),sy(pts[0]));pts.forEach((v,i)=>ctx.lineTo(sx(i),sy(v)));
+  ctx.strokeStyle=lc;ctx.lineWidth=1.5;ctx.stroke();
+  if(S.openPos){const ly=sy(S.openPos.liqPrice);ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(0,ly);ctx.lineTo(w,ly);ctx.strokeStyle='rgba(224,100,100,0.7)';ctx.lineWidth=1;ctx.stroke();ctx.setLineDash([]);}
+}
+
+function dtUpdateSim(){
+  const dp=document.getElementById('dtTickerPrice');
+  if(dp){dp.textContent='$'+Math.round(simPrice).toLocaleString();}
+  const base=priceData[currentAsset][0]||simPrice;
+  const pct=((simPrice-base)/base*100).toFixed(2);
+  const dc=document.getElementById('dtTickerChange');
+  if(dc){dc.textContent=(pct>=0?'+':'')+pct+'%';dc.className='ticker-change '+(pct>=0?'tc-pos':'tc-neg');}
+  dtUpdateSimSummary();
+}
+
+/* Hook into the shared price tick */
+const _origUpdate=updateTickerDisplay;
+window.updateTickerDisplay=function(cur,prev){
+  _origUpdate(cur,prev);
+  if(!dtSimInitDone)return;
+  const dp=document.getElementById('dtTickerPrice');
+  if(dp){dp.textContent='$'+Math.round(cur).toLocaleString();dp.className='dt-ticker-big '+(cur>prev?'up':cur<prev?'dn':'');}
+  const base=priceData[currentAsset][0]||cur,pct=((cur-base)/base*100).toFixed(2);
+  const dc=document.getElementById('dtTickerChange');
+  if(dc){dc.textContent=(pct>=0?'+':'')+pct+'%';dc.className='ticker-change '+(pct>=0?'tc-pos':'tc-neg');}
+  Object.keys(ASSETS).forEach(sym=>{
+    const arr=priceData[sym];if(!arr.length)return;
+    const c2=arr[arr.length-1],p2=arr[0],chg2=((c2-p2)/p2*100).toFixed(1);
+    const tp=document.getElementById('dtTabPrice-'+sym),tc=document.getElementById('dtTabChg-'+sym);
+    if(tp)tp.textContent='$'+c2.toLocaleString(undefined,{maximumFractionDigits:0});
+    if(tc){tc.textContent=(chg2>=0?'+':'')+chg2+'%';tc.className='at-chg '+(chg2>=0?'pos':'neg');}
+  });
+  dtDrawChart2();
+  if(S.openPos)dtUpdatePosPanelDt();
+  dtUpdateSimSummary();
+};
+
+setInterval(()=>{
+  const fc=document.getElementById('dtFundingClock'),ff=document.getElementById('dtFundingMiniFill'),fr=document.getElementById('dtFundingRate');
+  const mfc=document.getElementById('fundingClock'),mff=document.getElementById('fundingMiniFill'),mfr=document.getElementById('fundingRate');
+  if(fc&&mfc)fc.textContent=mfc.textContent;
+  if(ff&&mff)ff.style.width=mff.style.width;
+  if(fr&&mfr){fr.textContent=mfr.textContent;fr.className='funding-rate '+(mfr.classList.contains('pos')?'pos':'neg');}
+},1000);
+
+function dtSetDir(d){
+  dtSimDir=d;setDir(d);
+  document.getElementById('dtBtnLong').classList.toggle('on',d==='long');
+  document.getElementById('dtBtnShort').classList.toggle('on',d==='short');
+  document.getElementById('dtExecBtn').className=d==='long'?'exec-btn exec-long':'exec-btn exec-short';
+  document.getElementById('dtExecBtn').textContent=d==='long'?'Open Long Position':'Open Short Position';
+  dtUpdateSimSummary();
+}
+function dtUpdateLev(v){
+  document.getElementById('dtLevNum').textContent=v;
+  const risk=v<=5?'Low risk':v<=20?'Moderate risk':'High risk',cls=v<=5?'risk-low':v<=20?'risk-med':'risk-high';
+  document.getElementById('dtLevRisk').textContent=risk;document.getElementById('dtLevRisk').className='lev-risk '+cls;
+  const ms=document.getElementById('levSlider');if(ms)ms.value=v;
+  dtUpdateSimSummary();
+}
+function dtSetCol(v){document.getElementById('dtColInput').value=v;dtUpdateSimSummary();}
+function dtUpdateSimSummary(){
+  const lev=parseInt(document.getElementById('dtLevSlider')?.value)||5;
+  const col=parseFloat(document.getElementById('dtColInput')?.value)||0;
+  const posSize=col*lev,liqPrice=dtSimDir==='long'?simPrice*(1-0.95/lev):simPrice*(1+0.95/lev);
+  const rate=ASSETS[currentAsset].fundingRate,funding8h=posSize*rate,fees=posSize*0.0005;
+  const f=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  f('dtOsPosSize','$'+posSize.toLocaleString(undefined,{maximumFractionDigits:0}));
+  f('dtOsEntry','$'+Math.round(simPrice).toLocaleString());
+  f('dtOsLiq','$'+Math.round(liqPrice).toLocaleString());
+  f('dtOsFunding',(funding8h>=0?'+':'-')+'$'+Math.abs(funding8h).toFixed(4));
+  f('dtOsFees','$'+fees.toFixed(2));
+}
+
+function dtUpdatePosPanelDt(){
+  if(!S.openPos)return;
+  const p=S.openPos,rawPnl=p.dir==='long'?((simPrice-p.entry)/p.entry)*p.posSize:((p.entry-simPrice)/p.entry)*p.posSize;
+  const pnl=rawPnl-(p.fundingPaid||0);
+  const pp=document.getElementById('dtPosPanel');if(pp)pp.style.display='block';
+  const f=(id,v,cls)=>{const e=document.getElementById(id);if(e){e.textContent=v;if(cls)e.className=cls;}};
+  f('dtPpDir',p.dir==='long'?'↑ Long':'↓ Short');
+  f('dtPpEntry','$'+Math.round(p.entry).toLocaleString());
+  f('dtPpPnl',(pnl>=0?'+':'-')+'$'+Math.abs(pnl).toFixed(2),'dt-ps-val '+(pnl>=0?'pos':'neg'));
+  f('dtPpLiq','$'+Math.round(p.liqPrice).toLocaleString());
+  if(p.fundingPaid>0){const fd=document.getElementById('dtFundingDrain');if(fd){fd.style.display='block';fd.textContent=`Funding paid: $${p.fundingPaid.toFixed(2)}`;}}
+}
+
+function dtOpenPosition(){
+  if(S.openPos){alert('Close your current position first.');return;}
+  const lev=parseInt(document.getElementById('dtLevSlider').value)||5;
+  const col=parseFloat(document.getElementById('dtColInput').value)||0;
+  if(col<10){alert('Minimum: $10');return;}if(col>S.balance){alert('Insufficient balance');return;}
+  const liqPrice=dtSimDir==='long'?simPrice*(1-0.95/lev):simPrice*(1+0.95/lev);
+  S.openPos={dir:dtSimDir,entry:simPrice,collateral:col,lev,posSize:col*lev,liqPrice,fundingPaid:0,asset:currentAsset};
+  S.balance-=col;
+  document.getElementById('dtBalance').textContent='$'+Math.round(S.balance).toLocaleString();
+  document.getElementById('balanceDisplay').textContent='$'+Math.round(S.balance).toLocaleString();
+  dtUpdatePosPanelDt();dtDrawChart2();
+}
+
+function dtClosePosition(){
+  if(!S.openPos)return;
+  const p=S.openPos,rawPnl=p.dir==='long'?((simPrice-p.entry)/p.entry)*p.posSize:((p.entry-simPrice)/p.entry)*p.posSize;
+  const pnl=rawPnl-(p.fundingPaid||0),returned=p.collateral+pnl;
+  S.balance+=Math.max(0,returned);
+  document.getElementById('dtBalance').textContent='$'+Math.round(S.balance).toLocaleString();
+  document.getElementById('balanceDisplay').textContent='$'+Math.round(S.balance).toLocaleString();
+  S.tradeHistory.push({date:new Date().toISOString(),dir:p.dir,lev:p.lev,entry:p.entry,exit:simPrice,pnl,col:p.collateral,asset:p.asset,fundingPaid:p.fundingPaid||0});
+  save();showResult(pnl,p,false);S.openPos=null;
+  const pp=document.getElementById('dtPosPanel');if(pp)pp.style.display='none';
+  const fd=document.getElementById('dtFundingDrain');if(fd)fd.style.display='none';
+  dtDrawChart2();dtUpdateTradeHistDt();
+}
+
+function dtUpdateTradeHistDt(){
+  const el=document.getElementById('dtTradeHistory');if(!el)return;
+  if(!S.tradeHistory.length){el.textContent='No trades yet.';return;}
+  el.innerHTML=[...S.tradeHistory].reverse().slice(0,5).map(t=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:.76rem"><span style="color:var(--muted)">${t.dir==='long'?'↑':'↓'} ${t.lev}× ${t.asset||'BTC'}</span><span style="color:${t.pnl>=0?'var(--green)':'var(--red)'};font-weight:600">${t.pnl>=0?'+':'-'}$${Math.abs(t.pnl).toFixed(0)}</span></div>`).join('');
+}
+
+function dtRenderLB(){
+  const sorted=[...LB_FAKE].sort((a,b)=>b.xp-a.xp).map((e,i)=>({...e,rank:i+1}));
+  const you=sorted.find(e=>e.isYou);
+  const wrap=document.getElementById('dtLbWrap');if(!wrap)return;
+  wrap.innerHTML=`${you?`<div class="lb-you" style="margin-bottom:16px"><div class="lb-rank-big">#${you.rank}</div><div class="lb-you-info"><div class="lb-you-name">You · Apprentice</div><div class="lb-you-xp">${you.xp} xp · 🔥${you.streak}</div></div></div>`:''}
+    <div class="lb-list">${sorted.map(e=>`<div class="lb-item${e.isYou?' lb-you-item':''}"><div class="lb-rank${e.rank<=3?' top':''}">${e.rank<=3?['🥇','🥈','🥉'][e.rank-1]:e.rank}</div><div class="lb-avatar">${e.emoji}</div><div class="lb-name">${e.name}${e.isYou?' (You)':''}</div><div class="lb-xp"><strong>${e.xp.toLocaleString()}</strong> xp</div></div>`).join('')}</div>`;
+}
+
+function dtRenderGlossary(filter=''){
+  const wrap=document.getElementById('dtGlossaryWrap');if(!wrap)return;
+  wrap.innerHTML='';
+  const filtered=filter?GLOSSARY.filter(g=>g.term.toLowerCase().includes(filter.toLowerCase())||g.def.toLowerCase().includes(filter.toLowerCase())):GLOSSARY;
+  const grouped={};
+  filtered.forEach(g=>{const l=g.term[0].toUpperCase();if(!grouped[l])grouped[l]=[];grouped[l].push(g);});
+  Object.keys(grouped).sort().forEach(letter=>{
+    const div=document.createElement('div');div.className='glossary-group';
+    div.innerHTML=`<div class="glossary-letter">${letter}</div>`+grouped[letter].map(g=>`<div class="glossary-item" onclick="dtShowGlossDef('${g.term.replace(/'/g,"\\'")}')" ><div class="g-term">${g.term}</div><div class="g-def">${g.def.substring(0,90)}…</div></div>`).join('');
+    wrap.appendChild(div);
+  });
+  if(!filtered.length)wrap.innerHTML='<div style="padding:20px;text-align:center;font-size:.85rem;color:var(--muted)">No results</div>';
+}
+function dtFilterGlossary(v){dtRenderGlossary(v);}
+function dtShowGlossDef(term){
+  const entry=GLOSSARY.find(g=>g.term===term);if(!entry)return;
+  const p=document.getElementById('dtGlossPanel');
+  if(p)p.innerHTML=`<div class="dt-panel-label">Definition</div><div class="dt-quick-def"><div class="dt-qd-term">${entry.term}</div><div class="dt-qd-def">${entry.def}</div></div>`;
+}
+
+function dtRenderProfile(){
+  const total=S.tradeHistory.length,wins=S.tradeHistory.filter(t=>t.pnl>0).length;
+  const wr=total?Math.round(wins/total*100):0,bestTrade=total?Math.max(...S.tradeHistory.map(t=>t.pnl)):0;
+  const wrap=document.getElementById('dtProfileWrap');if(!wrap)return;
+  wrap.innerHTML=`
+    <div class="profile-hero" style="padding-top:12px">
+      <div class="profile-avatar">◈</div>
+      <div class="profile-name">Apprentice Trader</div>
+      <div class="profile-level">Level 3 · ${S.xp} XP · ${S.completedLessons.size} lessons</div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-card-label">Total XP</div><div class="stat-card-val amber">${S.xp}</div><div class="stat-card-sub">/ 1000 to Level 4</div></div>
+      <div class="stat-card"><div class="stat-card-label">Win Rate</div><div class="stat-card-val ${wr>=50?'green':'red'}">${wr}%</div><div class="stat-card-sub">${wins}W / ${total-wins}L</div></div>
+      <div class="stat-card"><div class="stat-card-label">Best Trade</div><div class="stat-card-val ${bestTrade>=0?'green':'red'}">${bestTrade>=0?'+':'-'}$${Math.abs(bestTrade).toFixed(0)}</div><div class="stat-card-sub">${total} total</div></div>
+      <div class="stat-card"><div class="stat-card-label">Balance</div><div class="stat-card-val">$${Math.round(S.balance).toLocaleString()}</div><div class="stat-card-sub">Started $10,000</div></div>
+    </div>
+    <div class="section-label">P&L History</div>
+    <div class="pnl-chart-wrap">${!total?'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--muted)">No trades yet</div>':''}<canvas id="dtPnlChart"></canvas></div>
+    <div class="section-label" style="margin:20px 0 12px">Badges</div>
+    <div class="badges-row">
+      <div class="badge${S.completedLessons.size>=1?'':' locked-badge'}"><div class="badge-icon">◻</div><div class="badge-info"><div class="badge-name">First Step</div><div class="badge-desc">Complete lesson 1</div></div></div>
+      <div class="badge${S.completedLessons.size>=3?'':' locked-badge'}"><div class="badge-icon">×</div><div class="badge-info"><div class="badge-name">Leverage Master</div><div class="badge-desc">3 lessons done</div></div></div>
+      <div class="badge${total>=1?'':' locked-badge'}"><div class="badge-icon">⇄</div><div class="badge-info"><div class="badge-name">First Trade</div><div class="badge-desc">Open a sim position</div></div></div>
+      <div class="badge${wins>=3?'':' locked-badge'}"><div class="badge-icon">★</div><div class="badge-info"><div class="badge-name">3 Wins</div><div class="badge-desc">Win 3 trades</div></div></div>
+      <div class="badge${S.streak>=7?'':' locked-badge'}"><div class="badge-icon">🔥</div><div class="badge-info"><div class="badge-name">Week Streak</div><div class="badge-desc">7-day streak</div></div></div>
+      <div class="badge${S.completedLessons.size>=6?'':' locked-badge'}"><div class="badge-icon">◈</div><div class="badge-info"><div class="badge-name">World 1 Done</div><div class="badge-desc">All lessons complete</div></div></div>
+    </div>`;
+  setTimeout(()=>{
+    const canvas=document.getElementById('dtPnlChart');if(!canvas||!total)return;
+    const wr2=canvas.parentElement;
+    canvas.width=wr2.clientWidth*devicePixelRatio;canvas.height=(wr2.clientHeight-32)*devicePixelRatio;
+    canvas.style.width=wr2.clientWidth+'px';canvas.style.height=(wr2.clientHeight-32)+'px';
+    const ctx2=canvas.getContext('2d');ctx2.scale(devicePixelRatio,devicePixelRatio);
+    const w=wr2.clientWidth,h=wr2.clientHeight-32;
+    const cumPnl=[];let running=0;S.tradeHistory.forEach(t=>{running+=t.pnl;cumPnl.push(running);});
+    const mn=Math.min(0,...cumPnl),mx=Math.max(0,...cumPnl),range=mx-mn||100;
+    const sy=v=>h-((v-mn)/range)*h*0.85-h*0.075,sx=i=>(i/(cumPnl.length-1||1))*w;
+    const isPos=cumPnl[cumPnl.length-1]>=0;
+    ctx2.beginPath();ctx2.moveTo(sx(0),sy(cumPnl[0]));cumPnl.forEach((v,i)=>ctx2.lineTo(sx(i),sy(v)));
+    ctx2.strokeStyle=isPos?'#5cb88a':'#e06464';ctx2.lineWidth=2;ctx2.stroke();
+    const zy=sy(0);ctx2.beginPath();ctx2.setLineDash([3,3]);ctx2.moveTo(0,zy);ctx2.lineTo(w,zy);
+    ctx2.strokeStyle='rgba(255,255,255,0.1)';ctx2.lineWidth=1;ctx2.stroke();ctx2.setLineDash([]);
+    cumPnl.forEach((v,i)=>{ctx2.beginPath();ctx2.arc(sx(i),sy(v),3,0,Math.PI*2);ctx2.fillStyle=v>=0?'#5cb88a':'#e06464';ctx2.fill();});
+  },50);
+  const sd=document.getElementById('dtStreakDays');
+  if(sd)sd.innerHTML=['M','T','W','T','F','S','S'].map((d,i)=>{const done=i<(S.streak%7||7),today=i===(new Date().getDay()+6)%7;return `<div class="streak-day${today?' today':done?' done':''}">${d}</div>`;}).join('');
+  const st=document.getElementById('dtStreakTitle');if(st)st.textContent=S.streak;
+  const fb=document.getElementById('dtFreezeBtn');if(fb){fb.disabled=S.streakFrozen||S.streakFreezesLeft<=0;fb.textContent=S.streakFrozen?'Freeze active':`❄ Freeze (${S.streakFreezesLeft} left)`;}
+  const rt=document.getElementById('dtRecentTrades');
+  if(rt&&S.tradeHistory.length)rt.innerHTML=[...S.tradeHistory].reverse().slice(0,4).map(t=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:.78rem"><span style="color:var(--muted)">${t.dir==='long'?'↑':'↓'} ${t.lev}× ${t.asset||'BTC'}</span><span style="color:${t.pnl>=0?'var(--green)':'var(--red)'};font-weight:600">${t.pnl>=0?'+':'-'}$${Math.abs(t.pnl).toFixed(0)}</span></div>`).join('');
+}
+
+function dtFreezeStreak(){
+  if(S.streakFrozen||S.streakFreezesLeft<=0)return;
+  S.streakFrozen=true;S.streakFreezesLeft--;save();dtRenderProfile();
+}
+
+function dtSyncSidebar(){
+  const xpEl=document.getElementById('dtXP');if(xpEl)xpEl.textContent=S.xp;
+  const fill=document.getElementById('dtXPFill');if(fill)fill.style.width=Math.min((S.xp/1000)*100,100)+'%';
+  const lv=document.getElementById('dtLevel');if(lv)lv.textContent=`Level ${S.xp<1000?3:4}`;
+  const pf=document.getElementById('dtMapProgFill');if(pf)pf.style.width=Math.min((S.xp/1000)*100,100)+'%';
+  const sc2=document.getElementById('dtStreak');if(sc2)sc2.textContent=S.streak;
+  const gm=document.getElementById('dtGems');if(gm)gm.textContent=S.gems;
+}
+
+/* Boot desktop */
+if(IS_DESKTOP()){
+  ['lesson','sim','lb','glossary','profile'].forEach(v=>{
+    const c=document.getElementById('dt-view-'+v),p=document.getElementById('dt-panel-'+v);
+    if(c)c.style.display='none'; if(p)p.style.display='none';
+  });
+  dtNavTo('map');
+}
+let _rTimer;window.addEventListener('resize',()=>{clearTimeout(_rTimer);_rTimer=setTimeout(()=>{if(IS_DESKTOP()){dtNavTo(dtActiveView);if(dtSimInitDone)setTimeout(dtSetupChart2,150);}},200);});
 </script>
 </body>
 </html>
