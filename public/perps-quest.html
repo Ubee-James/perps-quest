@@ -47,7 +47,7 @@ html.light {
 html.light .logo em,html.light .dt-logo em,html.light .comp-title em,
 html.light .dt-content-title em,html.light .headline em{color:var(--accent);}
 html.light .n-active{box-shadow:0 0 0 5px rgba(184,116,42,.08);}
-html.light .bnav{background:rgba(245,244,240,.96);}
+html.light .bnav{background:rgba(245,244,240,.98);box-shadow:0 -4px 24px rgba(0,0,0,0.08);}
 html.light .dt-sidebar{background:#ffffff;}
 html.light .map-header,html.light .s-hdr,html.light .l-header,html.light .sim-header,
 html.light .cta-bar,html.light .lp-track,html.light .ticker{background:var(--bg);}
@@ -338,7 +338,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .prog-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--amber),var(--accent));transition:width .6s cubic-bezier(.4,0,.2,1);}
 
 /* BOTTOM NAV */
-.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:rgba(12,12,15,.96);border-top:1px solid var(--border);backdrop-filter:blur(20px);display:flex;z-index:100;padding:8px 0 max(10px,env(safe-area-inset-bottom));}@media(min-width:900px){.bnav{display:none!important;}}
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:rgba(12,12,15,.98);border-top:1px solid var(--b2);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);display:flex;z-index:150;padding:10px 0 max(14px,env(safe-area-inset-bottom));box-shadow:0 -4px 24px rgba(0,0,0,0.25);}@media(min-width:900px){.bnav{display:none!important;}}
 .nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.6rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--muted2);cursor:pointer;padding:4px 0;transition:color .15s;border:none;background:none;}
 .nb .ni{font-size:1.05rem;line-height:1;}
 .nb:hover{color:var(--muted);}
@@ -428,7 +428,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .world-row{padding:22px 22px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
 .w-badge{font-size:.67rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--surface);border:1px solid var(--border);padding:3px 9px;border-radius:4px;}
 .w-title{font-family:'DM Serif Display',serif;font-size:1.05rem;}
-.track{padding:0 22px 100px;}
+.track{padding:0 22px 120px;}
 .node-row{display:flex;align-items:flex-start;position:relative;opacity:0;transform:translateY(10px);animation:fadeUp .4s ease forwards;}
 .node-row:nth-child(1){animation-delay:.04s}.node-row:nth-child(2){animation-delay:.09s}
 .node-row:nth-child(3){animation-delay:.14s}.node-row:nth-child(4){animation-delay:.19s}
@@ -760,11 +760,10 @@ canvas#pnlChart{display:block;}
     <div class="prog-meta"><span id="levelLabel">Level 3 · Apprentice</span><span><strong id="xpVal">550</strong> / 1000 xp</span></div>
     <div class="prog-bar"><div class="prog-fill" id="mapProgFill" style="width:55%"></div></div>
   </div>
-  <div class="world-row">
+  <div class="scroll-body"><div class="world-row">
     <div class="w-badge">World 1</div>
     <div class="w-title">The Fundamentals</div>
-  </div>
-  <div class="scroll-body"><div class="track" id="track"></div></div>
+  </div><div class="track" id="track"></div></div>
 </div>
 
 <!-- ═══════ LESSON ═══════ -->
@@ -1921,19 +1920,20 @@ function handleQuiz(opt){
 }
 
 function lessonAdvance(){
-  const l=LESSONS[S.currentLesson]; const total=l.cards.length+1;
+  const l=S.currentLesson>=100?LESSONS2[S.currentLesson-100]:LESSONS[S.currentLesson];
+  const total=l.cards.length+1;
   if(S.currentCard>=total-1){
-    if(S.currentLesson>=100){completeLesson(S.currentLesson);}
-    else{completeLesson(S.currentLesson);}
+    completeLesson(S.currentLesson);
     goBack('screen-map');return;}
   const prev=document.getElementById(`lcard-${S.currentCard}`);
-  prev.classList.remove('active');prev.classList.add('exiting');
-  setTimeout(()=>prev.classList.remove('exiting'),380);
+  if(prev){prev.classList.remove('active');prev.classList.add('exiting');setTimeout(()=>prev.classList.remove('exiting'),380);}
   S.currentCard++; S.quizAnswered=false;
   const next=document.getElementById(`lcard-${S.currentCard}`);
-  next.classList.add('entering');
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{next.classList.remove('entering');next.classList.add('active');}));
-  if(S.currentCard===l.cards.length)next.innerHTML=buildComplete(l);
+  if(next){
+    next.classList.add('entering');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{next.classList.remove('entering');next.classList.add('active');}));
+    if(S.currentCard===l.cards.length)next.innerHTML=buildComplete(l);
+  }
   attachQuizHandlers(); updateLessonUI();
 }
 
