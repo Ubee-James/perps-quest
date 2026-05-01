@@ -1263,8 +1263,8 @@ canvas#pnlChart{display:block;}
 <script>
 /* ═══════════════════ STATE ═══════════════════ */
 const S = {
-  xp: 550, streak: 7, gems: 340, balance: 10000,
-  completedLessons: new Set([0,1,2]),
+  xp: 0, streak: 0, gems: 0, balance: 10000,
+  completedLessons: new Set([]),
   currentLesson:0, currentCard:0,
   quizAnswered:false, quizCorrect:false,
   openPos:null,
@@ -1275,7 +1275,7 @@ const S = {
 
 /* persist to localStorage */
 function save(){try{localStorage.setItem('pq',JSON.stringify({xp:S.xp,streak:S.streak,gems:S.gems,balance:S.balance,completed:[...S.completedLessons],tradeHistory:S.tradeHistory,streakFrozen:S.streakFrozen,streakFreezesLeft:S.streakFreezesLeft}))}catch(e){}}
-function load(){try{const d=JSON.parse(localStorage.getItem('pq')||'null');if(!d)return;S.xp=d.xp||550;S.streak=d.streak||7;S.gems=d.gems||340;S.balance=d.balance||10000;S.completedLessons=new Set(d.completed||[0,1,2]);S.tradeHistory=d.tradeHistory||[];S.streakFrozen=d.streakFrozen||false;S.streakFreezesLeft=d.streakFreezesLeft||2;}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem('pq')||'null');if(!d)return;S.xp=d.xp||0;S.streak=d.streak||0;S.gems=d.gems||0;S.balance=d.balance||10000;S.completedLessons=new Set(d.completed||[]);S.tradeHistory=d.tradeHistory||[];S.streakFrozen=d.streakFrozen||false;S.streakFreezesLeft=d.streakFreezesLeft||2;}catch(e){}}
 load();
 
 /* ═══════════════════ GLOSSARY DATA ═══════════════════ */
@@ -1300,6 +1300,17 @@ const GLOSSARY = [
   {term:'Spot Price',def:'The current real-world price of an asset for immediate delivery. Perp prices should stay close to spot due to funding rates.'},
   {term:'Stop-Loss',def:'An order that automatically closes your position if the price reaches a specified level, capping your losses.'},
   {term:'Unrealized PnL',def:'Profit or loss on an open position that has not yet been closed. It fluctuates with the market price.'},
+  {term:'Cross Margin',def:'A margin mode where your entire account balance is used to back a position. Avoids liquidation longer but a bad trade can drain your whole account.'},
+  {term:'Isolated Margin',def:'A margin mode where only the collateral you deposit for a specific position is at risk. Losses cannot exceed what you put in.'},
+  {term:'Index Price',def:'The average spot price of an asset across multiple major exchanges. Used as the reference price for calculating mark price and funding rates.'},
+  {term:'Mark Price',def:'A manipulation-resistant fair value price used to calculate unrealised P&L and trigger liquidations. Based on index price plus a smoothed funding component.'},
+  {term:'Open Interest',def:'The total dollar value of all open perpetual positions across all traders. High OI signals heavy leverage in the market.'},
+  {term:'Order Book',def:'A real-time list of all pending buy and sell orders at every price level. The spread between best bid and ask indicates market liquidity.'},
+  {term:'Maker',def:'A trader who places a limit order that is not immediately matched, adding liquidity to the order book. Usually pays lower fees than a taker.'},
+  {term:'Taker',def:'A trader who places a market order that is immediately matched against existing orders, removing liquidity. Usually pays higher fees than a maker.'},
+  {term:'Risk/Reward Ratio',def:'The ratio of potential profit to potential loss on a trade. A 1:2 ratio means you risk $1 to make $2. Most traders aim for at least 1:1.5.'},
+  {term:'Portfolio Heat',def:'The total percentage of your account currently at risk across all open positions. Best practice is to keep this below 5% total.'},
+  {term:'Spread',def:'The gap between the best available buy price (bid) and best available sell price (ask) in the order book. A tight spread means a liquid market.'},
 ];
 
 /* ═══════════════════ NAVIGATION ═══════════════════ */
@@ -1325,6 +1336,41 @@ function goBack(to){
 }
 
 /* ═══════════════════ OVERLAY / SHEET ═══════════════════ */
+function openSheet2(i){
+  const l=LESSONS2[i]; const gi=i+6;
+  const isDone=S.completedLessons.has(gi);
+  const w1Complete=[...S.completedLessons].filter(x=>x<6).length===6;
+  const isActive=w1Complete&&!isDone&&(gi===6||S.completedLessons.has(gi-1));
+  document.getElementById('sGlyph').textContent=l.glyph;
+  document.getElementById('sTitle').textContent=l.name;
+  document.getElementById('sDesc').textContent=l.desc;
+  document.getElementById('sMeta').innerHTML=`<div style="display:flex;align-items:center;gap:4px;background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:6px 11px;font-size:.76rem;color:var(--muted);font-weight:500">⏱ <strong style="color:var(--text)">${l.time}</strong></div><div style="display:flex;align-items:center;gap:4px;background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:6px 11px;font-size:.76rem;color:var(--muted);font-weight:500">◻ <strong style="color:var(--text)">${l.n} slides</strong></div><div style="display:flex;align-items:center;gap:4px;background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:6px 11px;font-size:.76rem;color:var(--muted);font-weight:500">✦ <strong style="color:var(--text)">+${l.xp} xp</strong></div>`;
+  const btn=document.getElementById('sBtn');
+  if(isDone){btn.textContent='Review lesson';btn.style.cssText='background:var(--gdim);color:var(--green);border:1px solid rgba(92,184,138,.3)';btn.disabled=false;btn.onclick=()=>{closeSheet();startLesson2(i);};}
+  else if(isActive){btn.textContent='Start lesson →';btn.style.cssText='background:var(--amber);color:#0c0c0f';btn.disabled=false;btn.onclick=()=>{closeSheet();startLesson2(i);};}
+  else{btn.textContent=w1Complete?'Complete previous lessons first':'Complete World 1 first';btn.style.cssText='background:var(--s2);color:var(--muted)';btn.disabled=true;btn.onclick=null;}
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('sheet').classList.add('open');
+}
+
+function startLesson2(idx){
+  // reuse the lesson engine, just point at LESSONS2
+  S.currentLesson=idx+100; // offset to distinguish W2
+  S.currentCard=0; S.quizAnswered=false; S.quizCorrect=false;
+  const l=LESSONS2[idx];
+  document.getElementById('lessonTitle').textContent=l.name;
+  document.getElementById('lessonXP').textContent=`+${l.xp} xp`;
+  const stage=document.getElementById('lessonStage'); stage.innerHTML='';
+  l.cards.forEach((c,ci)=>{
+    const div=document.createElement('div'); div.className='card'+(ci===0?' active':''); div.id=`lcard-${ci}`;
+    div.innerHTML=c.quiz?buildQuiz(c):c.render(); stage.appendChild(div);
+  });
+  const comp=document.createElement('div');comp.className='card';comp.id=`lcard-${l.cards.length}`;
+  comp.innerHTML=buildComplete(l); stage.appendChild(comp);
+  updateLessonUI(); showScreen('screen-lesson');
+  attachQuizHandlers();
+}
+
 function openSheet(i){
   const l=LESSONS[i];
   const isDone=S.completedLessons.has(i);
@@ -1388,13 +1434,271 @@ function renderMap(){
       </div>`;
     track.appendChild(row);
   });
-  const div=document.createElement('div');div.className='divider';
-  div.innerHTML=`<div class="div-line"></div><div class="div-text">World 2 · Coming Next</div><div class="div-line"></div>`;
-  track.appendChild(div);
-  const w2=document.createElement('div');w2.className='node-row locked-row';
-  w2.innerHTML=`<div class="n-col"><div class="node n-w2" style="font-family:monospace">◉</div></div><div class="n-info locked-info"><div class="n-title" style="color:var(--muted2)">Advanced Mechanics</div><div class="n-sub" style="opacity:.5">Mark vs index · Cross vs isolated · Open interest</div><div class="n-tags"><span class="tag">Complete World 1</span></div></div>`;
-  track.appendChild(w2);
+  // ── World 2 header ──
+  const w2header=document.createElement('div');w2header.className='world-row';w2header.style.cssText='padding-top:28px;';
+  const w1done=[...S.completedLessons].filter(i=>i<6).length===6;
+  w2header.innerHTML=`<div class="w-badge">World 2</div><div class="w-title">Advanced Mechanics</div>`;
+  track.appendChild(w2header);
+  // ── World 2 lessons ──
+  LESSONS2.forEach((l,i)=>{
+    const gi=i+6; // global index
+    const w1Complete=[...S.completedLessons].filter(x=>x<6).length===6;
+    const isDone=S.completedLessons.has(gi);
+    const isActive=w1Complete&&!isDone&&(gi===6||S.completedLessons.has(gi-1));
+    const isLocked=!isDone&&!isActive;
+    const isLast=i===LESSONS2.length-1;
+    const row=document.createElement('div');row.className=`node-row${isLocked?' locked-row':''}`;
+    const nodeClass=isDone?'node n-done':isActive?'node n-active':'node n-locked';
+    const dot=isDone?`<div class="ndot dot-done">✓</div>`:isActive?`<div class="ndot dot-active"></div>`:'';
+    const finalTag=l.boss?`<span class="final-tag">Final</span>`:'';
+    const tags=isLocked?`<div class="n-tags"><span class="tag">${w1Complete?'Locked':'Complete World 1'}</span></div>`:`<div class="n-tags"><span class="tag">${l.time}</span><span class="tag">${l.n} slides</span><span class="tag">+${l.xp} xp</span></div>`;
+    const stars=isDone?`<div class="stars-row">${[0,1,2].map(s=>`<div class="sd${s<(l.stars||0)?' ':' off'}"></div>`).join('')}</div>`:'';
+    const contBtn=isActive?`<button class="btn-cont" onclick="startLesson2(${i})">Start →</button>`:isDone?`<button class="btn-cont" style="background:var(--gdim);color:var(--green);border:1px solid rgba(92,184,138,.3)" onclick="startLesson2(${i})">Review</button>`:'';
+    const infoClass=`n-info${isActive?' active-info':''}${isLocked?' locked-info':''}`;
+    row.innerHTML=`${!isLast?`<div class="vline${isDone?' done':''}"></div>`:''}
+      <div class="n-col"><div class="${nodeClass}" ${!isLocked?`onclick="openSheet2(${i})"`:''}>${l.glyph}${dot}</div></div>
+      <div class="${infoClass}" ${!isLocked?`onclick="openSheet2(${i})"`:''}>
+        <div class="n-title">${l.name}${finalTag}</div>
+        <div class="n-sub">${l.desc}</div>
+        ${tags}${stars}${contBtn}
+      </div>`;
+    track.appendChild(row);
+  });
 }
+
+/* ═══════════════════ WORLD 2 LESSONS ═══════════════════ */
+/* ═══════════════════ WORLD 2 LESSONS ═══════════════════ */
+const LESSONS2=[
+  {id:6,glyph:'⊕',name:'Mark vs Index Price',xp:200,time:'7 min',n:4,stars:0,world:2,
+   desc:'Why perp prices differ from real prices — and why it determines when you get liquidated.',
+   cards:[
+    {type:'Concept',render:()=>`<div class="ctype"><div class="ctype-dot"></div>Concept</div>
+      <div class="headline">Two prices,<br>one <em>truth</em></div>
+      <div class="body-text">Every perp exchange shows two prices at all times. The <span class="gterm" onclick="showTooltip(this,'Spot Price')">spot price</span> is what Bitcoin trades for right now on exchanges like Coinbase. The <strong>mark price</strong> is a calculated fair value the exchange uses internally.</div>
+      <div class="box"><div class="box-label">Why two prices?</div><div class="box-text">A single large trade or a flash crash on one exchange could temporarily push the perp price far from reality. If liquidations were based on that manipulated price, traders could be unfairly wiped out. <strong>Mark price prevents this.</strong></div></div>
+      <div class="fact-list">
+        <div class="fact"><div class="f-icon">◎</div><div class="f-text"><strong>Index price</strong> — average of BTC spot price across multiple major exchanges</div></div>
+        <div class="fact"><div class="f-icon">⊕</div><div class="f-text"><strong>Mark price</strong> — index price adjusted by a funding rate component. This is what triggers liquidations.</div></div>
+      </div>`},
+    {type:'Visual',render:()=>`<div class="ctype"><div class="ctype-dot"></div>Visual</div>
+      <div class="headline sm">How mark price<br>is <em>calculated</em></div>
+      <div class="formula-box"><div class="fm-label">Mark Price</div><div class="fm">Index Price + <em>EMA of basis</em></div><div class="fm-note">EMA = exponential moving average of (perp price − index price)<br>This smooths out short-term manipulation.</div></div>
+      <div class="grid2">
+        <div class="gcell hl-g"><div class="gc-label">Index Price</div><div class="gc-val green" style="font-size:1.2rem">$95,000</div><div class="gc-sub">Spot average</div></div>
+        <div class="gcell hl"><div class="gc-label">Mark Price</div><div class="gc-val amber" style="font-size:1.2rem">$94,980</div><div class="gc-sub">Used for liquidations</div></div>
+      </div>
+      <div class="box"><div class="box-label">Key rule</div><div class="box-text">Your <strong>unrealised P&L and liquidation price</strong> are always calculated using mark price, not the last traded price. A flash wick on the perp won't liquidate you if mark price didn't move.</div></div>`},
+    {type:'Mechanics',render:()=>`<div class="ctype"><div class="ctype-dot"></div>Mechanics</div>
+      <div class="headline sm">When the gap<br><em>matters</em></div>
+      <div class="fact-list">
+        <div class="fact"><div class="f-icon">!</div><div class="f-text"><strong>During high volatility</strong>, mark and last price can diverge by hundreds of dollars. Always watch mark price, not the chart candles.</div></div>
+        <div class="fact"><div class="f-icon">⊘</div><div class="f-text"><strong>Stop-losses trigger on last price.</strong> Your liquidation triggers on mark price. Know which one you're watching.</div></div>
+        <div class="fact"><div class="f-icon">◎</div><div class="f-text"><strong>Funding rate direction</strong> tells you whether perps are trading above or below index. Positive rate = perp above index.</div></div>
+        <div class="fact"><div class="f-icon">✓</div><div class="f-text"><strong>Good exchanges</strong> display mark price prominently. If you can't find it easily, that's a red flag.</div></div>
+      </div>`},
+    {type:'Quiz',quiz:true,
+     question:'BTC last traded price spikes to $98,000 briefly, but mark price stays at $95,100. You have a 10× long with liquidation at $90,000. What happens?',
+     options:['You get liquidated — last price is above mark','Nothing — liquidation uses mark price, which is fine','Your P&L increases based on the $98k wick','Your funding rate doubles immediately'],
+     correct:1,
+     explanation:'<strong>Liquidations use mark price, not last traded price.</strong> The wick to $98k is irrelevant — mark price at $95,100 is well above your $90,000 liquidation level. This system protects you from manipulation.'}
+   ]},
+  {id:7,glyph:'⊞',name:'Cross vs Isolated Margin',xp:200,time:'8 min',n:4,stars:0,world:2,
+   desc:'Two ways to allocate capital to a trade. One can save you, the other limits your losses.',
+   cards:[
+    {type:'Concept',render:()=>`<div class="ctype"><div class="ctype-dot"></div>Concept</div>
+      <div class="headline">How you<br><em>back</em> a trade</div>
+      <div class="body-text">When you open a position, you choose how much of your account backs it. <strong>Isolated margin</strong> ring-fences a fixed amount. <strong>Cross margin</strong> lets the entire account balance support the trade.</div>
+      <div class="grid2">
+        <div class="gcell hl-r"><div class="gc-label">Isolated Margin</div><div class="gc-val" style="font-size:1rem;color:var(--text)">Fixed collateral</div><div class="gc-sub">Max loss = deposit only</div></div>
+        <div class="gcell hl-b"><div class="gc-label">Cross Margin</div><div class="gc-val" style="font-size:1rem;color:var(--text)">Full balance</div><div class="gc-sub">Liquidation avoided longer</div></div>
+      </div>
+      <div class="box"><div class="box-label">The core trade-off</div><div class="box-text">Isolated limits your downside to what you put in. Cross gives a position more breathing room but a bad trade can drain <strong>your entire account balance</strong>.</div></div>`},
+    {type:'Scenario',render:()=>`<div class="ctype"><div class="ctype-dot"></div>Scenario</div>
+      <div class="headline sm">Same trade,<br><em>different</em> outcomes</div>
+      <div class="body-text">Account balance: $5,000. You open a 10× BTC long with $500 collateral. BTC drops 12%.</div>
+      <div class="sc-box">
+        <div class="sc-head"><div class="sc-head-l">Isolated Margin</div><div class="sc-head-r" style="color:var(--red)">Liquidated</div></div>
+        <div class="sc-grid">
+          <div class="scc"><div class="scc-l">Collateral at risk</div><div class="scc-v">$500</div></div>
+          <div class="scc"><div class="scc-l">Rest of account</div><div class="scc-v pos">Safe ✓</div></div>
+          <div class="scc"><div class="scc-l">Loss</div><div class="scc-v neg">−$500</div></div>
+          <div class="scc"><div class="scc-l">Balance after</div><div class="scc-v">$4,500</div></div>
+        </div>
+      </div>
+      <div class="sc-box">
+        <div class="sc-head"><div class="sc-head-l">Cross Margin</div><div class="sc-head-r" style="color:var(--green)">Survived</div></div>
+        <div class="sc-grid">
+          <div class="scc"><div class="scc-l">Collateral at risk</div><div class="scc-v">$5,000</div></div>
+          <div class="scc"><div class="scc-l">Rest of account</div><div class="scc-v neg">At risk ✗</div></div>
+          <div class="scc"><div class="scc-l">Unrealised loss</div><div class="scc-v neg">−$600</div></div>
+          <div class="scc"><div class="scc-l">Balance after</div><div class="scc-v">$4,400</div></div>
+        </div>
+      </div>`},
+    {type:'Mechanics',render:()=>`<div class="ctype"><div class="ctype-dot"></div>Mechanics</div>
+      <div class="headline sm">When to use<br><em>each</em> one</div>
+      <div class="fact-list">
+        <div class="fact"><div class="f-icon">⊘</div><div class="f-text"><strong>Use isolated</strong> when you want a hard cap on losses. Great for high-leverage speculative trades where you know exactly what you're risking.</div></div>
+        <div class="fact"><div class="f-icon">⊕</div><div class="f-text"><strong>Use cross</strong> when you're confident in the trade and want to avoid liquidation on a short-term wick. Common for lower-leverage positions.</div></div>
+        <div class="fact"><div class="f-icon">!</div><div class="f-text"><strong>Never use cross with high leverage</strong> — one bad trade can wipe your entire account. Isolated is almost always safer for beginners.</div></div>
+        <div class="fact"><div class="f-icon">◎</div><div class="f-text"><strong>Default on most exchanges</strong> is cross margin. Check before you open a trade.</div></div>
+      </div>`},
+    {type:'Quiz',quiz:true,
+     question:'You have $2,000 in your account. You open an isolated margin position with $200. The trade goes wrong and hits liquidation. What is your remaining balance?',
+     options:['$0 — the whole account is liquidated','$1,800 — only the $200 collateral is lost','$200 — cross margin saved the rest','$2,000 — isolated means no losses'],
+     correct:1,
+     explanation:'<strong>Isolated margin caps your loss at the deposited collateral.</strong> You put in $200, that $200 is gone, but the remaining $1,800 in your account is completely untouched. This is the key benefit of isolated margin.'}
+   ]},
+  {id:8,glyph:'≋',name:'Open Interest',xp:200,time:'7 min',n:4,stars:0,world:2,
+   desc:'The crowd signal hiding in plain sight. Learn to read it before entering a trade.',
+   cards:[
+    {type:'Concept',render:()=>`<div class="ctype"><div class="ctype-dot"></div>Concept</div>
+      <div class="headline">The market's<br><em>total bet</em></div>
+      <div class="body-text"><span class="gterm" onclick="showTooltip(this,'Open Interest')">Open interest</span> (OI) is the total dollar value of all open perpetual positions across all traders. Every long has a short on the other side — OI counts the total, not net.</div>
+      <div class="box"><div class="box-label">Why it matters</div><div class="box-text">High OI means a lot of leveraged money is sitting in positions. When price moves against the crowded side, <strong>mass liquidations cascade</strong> — amplifying the move. Low OI means the market is quiet.</div></div>
+      <div class="grid2">
+        <div class="gcell hl-g"><div class="gc-label">Rising OI + Rising Price</div><div class="gc-val green" style="font-size:.9rem">Strong uptrend</div><div class="gc-sub">New money entering longs</div></div>
+        <div class="gcell hl-r"><div class="gc-label">Rising OI + Falling Price</div><div class="gc-val red" style="font-size:.9rem">Strong downtrend</div><div class="gc-sub">New money entering shorts</div></div>
+      </div>`},
+    {type:'Mechanics',render:()=>`<div class="ctype"><div class="ctype-dot"></div>Mechanics</div>
+      <div class="headline sm">Reading OI<br>like a <em>pro</em></div>
+      <div class="grid2">
+        <div class="gcell hl-g"><div class="gc-label">OI rises, price rises</div><div class="gc-val green" style="font-size:.85rem">Bullish confirmation</div><div class="gc-sub">Trend has legs</div></div>
+        <div class="gcell hl-r"><div class="gc-label">OI rises, price falls</div><div class="gc-val red" style="font-size:.85rem">Bearish confirmation</div><div class="gc-sub">Shorts piling in</div></div>
+        <div class="gcell hl"><div class="gc-label">OI falls, price rises</div><div class="gc-val amber" style="font-size:.85rem">Short squeeze</div><div class="gc-sub">Shorts covering, weak move</div></div>
+        <div class="gcell"><div class="gc-label">OI falls, price falls</div><div class="gc-val" style="font-size:.85rem">Long liquidations</div><div class="gc-sub">Longs getting wrecked</div></div>
+      </div>
+      <div class="box"><div class="box-label">The danger zone</div><div class="box-text">When OI is at all-time highs and funding rate is very positive, the market is <strong>overcrowded with longs</strong>. Any drop triggers a cascade of liquidations — making the drop much worse. This is called a <strong>long squeeze</strong>.</div></div>`},
+    {type:'Mechanics',render:()=>`<div class="ctype"><div class="ctype-dot"></div>Mechanics</div>
+      <div class="headline sm">Where to<br><em>find</em> it</div>
+      <div class="fact-list">
+        <div class="fact"><div class="f-icon">◎</div><div class="f-text"><strong>Coinglass.com</strong> — the best free tool for OI, funding rates, and liquidation maps across all exchanges.</div></div>
+        <div class="fact"><div class="f-icon">≋</div><div class="f-text"><strong>Exchange OI panels</strong> — Binance, Bybit, and dYdX all show aggregate OI on their trading interfaces.</div></div>
+        <div class="fact"><div class="f-icon">⚡</div><div class="f-text"><strong>Liquidation heatmaps</strong> — show where clusters of stop-losses and liquidations sit at various price levels. Price often moves toward them.</div></div>
+      </div>`},
+    {type:'Quiz',quiz:true,
+     question:'BTC open interest has been rising for 3 days while price has been falling. Funding rate is deeply negative. What does this likely signal?',
+     options:['A strong bull market building up','Shorts are piling in — bearish pressure increasing','Random noise, OI is meaningless','A long squeeze is imminent'],
+     correct:1,
+     explanation:'<strong>Rising OI + falling price + negative funding = shorts piling in.</strong> More traders are opening short positions and being rewarded (receiving funding). This confirms bearish momentum, not a setup for an immediate reversal.'}
+   ]},
+  {id:9,glyph:'⊡',name:'Order Types',xp:200,time:'8 min',n:4,stars:0,world:2,
+   desc:'Market, limit, stop-loss, take-profit. The four tools every perp trader needs.',
+   cards:[
+    {type:'Concept',render:()=>`<div class="ctype"><div class="ctype-dot"></div>Concept</div>
+      <div class="headline">Four ways to<br><em>enter</em> and exit</div>
+      <div class="body-text">Every trade is placed using an order type. The type you choose determines <strong>when and at what price</strong> your position opens or closes.</div>
+      <div class="fact-list">
+        <div class="fact"><div class="f-icon">⚡</div><div class="f-text"><strong>Market order</strong> — executes immediately at the current price. Fast, but you may get a worse price than expected (slippage).</div></div>
+        <div class="fact"><div class="f-icon">⊡</div><div class="f-text"><strong>Limit order</strong> — only executes at your specified price or better. Slower, but you control the entry price. Usually lower fees.</div></div>
+        <div class="fact"><div class="f-icon">⊘</div><div class="f-text"><strong>Stop-loss</strong> — automatically closes your position if price hits a level. Limits your downside without you watching the screen.</div></div>
+        <div class="fact"><div class="f-icon">★</div><div class="f-text"><strong>Take-profit</strong> — automatically closes your position at a profit target. Locks in gains without emotion.</div></div>
+      </div>`},
+    {type:'Scenario',render:()=>`<div class="ctype"><div class="ctype-dot"></div>Scenario</div>
+      <div class="headline sm">A complete<br><em>trade plan</em></div>
+      <div class="body-text">BTC is at $95,000. You want to go long, but only if it dips to $94,000. You want to exit at $98,000 or cut losses at $92,000.</div>
+      <div class="sc-box">
+        <div class="sc-head"><div class="sc-head-l">Your order plan</div><div class="sc-head-r">BTC Long</div></div>
+        <div class="sc-grid">
+          <div class="scc"><div class="scc-l">Entry</div><div class="scc-v">Limit @ $94,000</div></div>
+          <div class="scc"><div class="scc-l">Type</div><div class="scc-v">Limit order</div></div>
+          <div class="scc"><div class="scc-l">Take-profit</div><div class="scc-v pos">$98,000</div></div>
+          <div class="scc"><div class="scc-l">Stop-loss</div><div class="scc-v neg">$92,000</div></div>
+        </div>
+      </div>
+      <div class="box"><div class="box-label">Risk / Reward</div><div class="box-text">Risk: $2,000 move against you (−2.1%). Reward: $4,000 move in your favour (+4.3%). That's a <strong>1:2 risk/reward ratio</strong> — a solid trade setup. You want at least 1:1.5 on every trade.</div></div>`},
+    {type:'Mechanics',render:()=>`<div class="ctype"><div class="ctype-dot"></div>Mechanics</div>
+      <div class="headline sm">Maker vs<br><em>taker</em> fees</div>
+      <div class="body-text">Order types also affect what fees you pay.</div>
+      <div class="grid2">
+        <div class="gcell hl-g"><div class="gc-label">Limit order (Maker)</div><div class="gc-val green" style="font-size:1rem">~0.02%</div><div class="gc-sub">Adds liquidity to the book. Cheaper.</div></div>
+        <div class="gcell hl-r"><div class="gc-label">Market order (Taker)</div><div class="gc-val red" style="font-size:1rem">~0.05%</div><div class="gc-sub">Takes liquidity. More expensive.</div></div>
+      </div>
+      <div class="fact-list" style="margin-top:4px">
+        <div class="fact"><div class="f-icon">◎</div><div class="f-text">On a $10,000 position: maker fee = $2 vs taker fee = $5. Adds up fast if you trade frequently.</div></div>
+        <div class="fact"><div class="f-icon">⚡</div><div class="f-text"><strong>Use market orders</strong> when speed matters more than price — breaking news, liquidation approaching.</div></div>
+        <div class="fact"><div class="f-icon">⊡</div><div class="f-text"><strong>Use limit orders</strong> for planned entries and exits — you get a better price and pay lower fees.</div></div>
+      </div>`},
+    {type:'Quiz',quiz:true,
+     question:'You hold a profitable long position. You want to lock in gains automatically if BTC reaches $100,000 without watching the screen. Which order type do you use?',
+     options:['Market order at $100,000','Stop-loss at $100,000','Take-profit at $100,000','Limit order to buy more at $100,000'],
+     correct:2,
+     explanation:'A <strong>take-profit order</strong> automatically closes your position when price reaches your target — in this case $100,000. A stop-loss would also trigger at that level but is designed for cutting losses, not locking in profits. Market orders require manual execution.'}
+   ]},
+  {id:10,glyph:'◬',name:'Risk Management',xp:300,time:'10 min',n:5,stars:0,world:2,
+   desc:'The one skill that separates traders who last from those who blow up.',
+   cards:[
+    {type:'Concept',render:()=>`<div class="ctype"><div class="ctype-dot"></div>Concept</div>
+      <div class="headline">Survive first,<br><em>profit</em> second</div>
+      <div class="body-text">Most traders focus on finding winning trades. The best traders focus on <strong>surviving losing ones</strong>. Risk management is the difference between a bad week and a blown account.</div>
+      <div class="box"><div class="box-label">The brutal truth</div><div class="box-text">Even a strategy that wins 60% of the time will blow up your account if you size positions incorrectly. A single overleveraged trade can erase months of gains. <strong>Position sizing is more important than entry timing.</strong></div></div>`},
+    {type:'Mechanics',render:()=>`<div class="ctype"><div class="ctype-dot"></div>Mechanics</div>
+      <div class="headline sm">The 1% rule</div>
+      <div class="body-text">The most widely used risk management rule: <strong>never risk more than 1–2% of your total account on a single trade.</strong></div>
+      <div class="formula-box"><div class="fm-label">Max risk per trade</div><div class="fm">Account × <em>1%</em></div><div class="fm-note">$10,000 account → max risk $100 per trade<br>$5,000 account → max risk $50 per trade</div></div>
+      <div class="fact-list">
+        <div class="fact"><div class="f-icon">◎</div><div class="f-text">With the 1% rule you can lose <strong>10 trades in a row</strong> and still have ~90% of your capital. Recovery is possible.</div></div>
+        <div class="fact"><div class="f-icon">!</div><div class="f-text">Risk 10% per trade and a 10-trade losing streak leaves you with <strong>35% of your capital</strong>. Recovery is nearly impossible.</div></div>
+      </div>`},
+    {type:'Mechanics',render:()=>`<div class="ctype"><div class="ctype-dot"></div>Mechanics</div>
+      <div class="headline sm">Sizing a position<br>from your <em>stop-loss</em></div>
+      <div class="body-text">Don't pick collateral randomly. Start from how much you're willing to lose, then work backwards.</div>
+      <div class="formula-box"><div class="fm-label">Position Size from Risk</div><div class="fm"><em>Risk Amount</em> ÷ Stop Distance %</div><div class="fm-note">Willing to lose $100 · Stop-loss 5% away<br>→ Position size = $100 ÷ 0.05 = <strong>$2,000</strong><br>→ At 10×, collateral needed = $200</div></div>
+      <div class="box"><div class="box-label">This is the right order</div><div class="box-text">1. Decide max loss ($100)<br>2. Find stop-loss level (5% away)<br>3. Calculate position size ($2,000)<br>4. Calculate collateral needed ($200 at 10×)<br><strong>Not the other way around.</strong></div></div>`},
+    {type:'Mechanics',render:()=>`<div class="ctype"><div class="ctype-dot"></div>Mechanics</div>
+      <div class="headline sm">Portfolio heat<br>and <em>correlation</em></div>
+      <div class="fact-list">
+        <div class="fact"><div class="f-icon">◬</div><div class="f-text"><strong>Portfolio heat</strong> = total % of account at risk across all open positions. Keep it under 5% total.</div></div>
+        <div class="fact"><div class="f-icon">≋</div><div class="f-text"><strong>Correlation risk</strong> — BTC long + ETH long + SOL long is not three separate bets. All crypto moves together. You're really just one big crypto long.</div></div>
+        <div class="fact"><div class="f-icon">⊘</div><div class="f-text"><strong>Reduce size in uncertainty.</strong> During major news events (Fed decisions, ETF approvals), halve your normal position size.</div></div>
+        <div class="fact"><div class="f-icon">◎</div><div class="f-text"><strong>Never average into a losing position</strong> with leverage. Adding to a loss amplifies the damage if the trade continues against you.</div></div>
+      </div>`},
+    {type:'Quiz',quiz:true,
+     question:'Your account has $8,000. You follow the 1% rule. Your stop-loss is 4% from your entry. What is the maximum position size you should open?',
+     options:['$80','$2,000','$320','$800'],
+     correct:1,
+     explanation:'1% of $8,000 = <strong>$80 max risk</strong>. Stop is 4% away, so: $80 ÷ 0.04 = <strong>$2,000 max position size</strong>. At 10× leverage, that means $200 collateral. This is the correct way to size — starting from your acceptable loss, not from how much you want to trade.'}
+   ]},
+  {id:11,glyph:'▣',name:'Reading a Perps Interface',xp:400,time:'15 min',n:4,stars:0,world:2,boss:true,
+   desc:'Put it all together. A complete walkthrough of a real exchange interface — every panel explained.',
+   cards:[
+    {type:'Challenge',render:()=>`<div class="ctype"><div class="ctype-dot"></div>World 2 Final</div>
+      <div class="headline">The full<br><em>picture</em></div>
+      <div class="body-text">You now know mark price, margin modes, open interest, order types, and risk management. The last skill is reading a real exchange interface fluently — so nothing surprises you when real money is on the line.</div>
+      <div class="fact-list">
+        <div class="fact"><div class="f-icon">1</div><div class="f-text"><strong>Order book</strong> — real-time list of all pending buy and sell orders at every price level</div></div>
+        <div class="fact"><div class="f-icon">2</div><div class="f-text"><strong>Positions panel</strong> — your open trades, P&L, margin, and liquidation prices at a glance</div></div>
+        <div class="fact"><div class="f-icon">3</div><div class="f-text"><strong>Funding countdown</strong> — always visible, always relevant if you're holding overnight</div></div>
+        <div class="fact"><div class="f-icon">4</div><div class="f-text"><strong>Mark vs last price</strong> — shown side by side on every professional exchange</div></div>
+      </div>`},
+    {type:'Mechanics',render:()=>`<div class="ctype"><div class="ctype-dot"></div>Mechanics</div>
+      <div class="headline sm">The order book<br><em>decoded</em></div>
+      <div class="body-text">The order book is split into two sides. Red (asks) = people willing to sell. Green (bids) = people willing to buy.</div>
+      <div class="sc-box">
+        <div class="sc-head"><div class="sc-head-l">Order Book · BTC/USD</div><div class="sc-head-r">$95,000</div></div>
+        <div class="sc-grid">
+          <div class="scc" style="border-bottom:1px solid var(--border)"><div class="scc-l">Asks (Sell)</div><div class="scc-v neg">$95,200 · 2.4 BTC</div></div>
+          <div class="scc" style="border-bottom:1px solid var(--border)"><div class="scc-l"></div><div class="scc-v neg">$95,100 · 1.1 BTC</div></div>
+          <div class="scc"><div class="scc-l">Bids (Buy)</div><div class="scc-v pos">$94,900 · 3.2 BTC</div></div>
+          <div class="scc"><div class="scc-l"></div><div class="scc-v pos">$94,800 · 5.8 BTC</div></div>
+        </div>
+      </div>
+      <div class="box"><div class="box-label">The spread</div><div class="box-text">The gap between best ask ($95,100) and best bid ($94,900) is called the spread — $200 here. A <strong>tight spread</strong> = liquid market, low slippage. A wide spread = illiquid, avoid market orders.</div></div>`},
+    {type:'Mechanics',render:()=>`<div class="ctype"><div class="ctype-dot"></div>Mechanics</div>
+      <div class="headline sm">Your positions<br><em>panel</em></div>
+      <div class="fact-list">
+        <div class="fact"><div class="f-icon">⊕</div><div class="f-text"><strong>Size</strong> — total position value (collateral × leverage). Not your collateral alone.</div></div>
+        <div class="fact"><div class="f-icon">◎</div><div class="f-text"><strong>Entry price</strong> — average price of your position. If you added to a position, it's the average across all entries.</div></div>
+        <div class="fact"><div class="f-icon">!</div><div class="f-text"><strong>Liq. price</strong> — the most important number in the panel. Know it at all times.</div></div>
+        <div class="fact"><div class="f-icon">≋</div><div class="f-text"><strong>Unrealised PnL</strong> — what you'd make if you closed right now, after fees. This is mark price based.</div></div>
+        <div class="fact"><div class="f-icon">⊡</div><div class="f-text"><strong>Margin ratio</strong> — how close you are to liquidation. Above 80% is danger territory. Top up or reduce position.</div></div>
+      </div>`},
+    {type:'Quiz',quiz:true,
+     question:'You open the positions panel and see: Size $5,000 · Entry $94,000 · Mark $93,200 · Liq. $91,000 · Margin Ratio 68%. What should you do?',
+     options:['Nothing — liq. price is still far away','Close immediately — you are already liquidated','Add more collateral — margin ratio is getting high','Switch to cross margin automatically'],
+     correct:2,
+     explanation:'At 68% margin ratio you still have room, but you\'re closer to liquidation than is comfortable. <strong>Adding collateral pushes the liquidation price lower and reduces the margin ratio</strong> — giving your trade more breathing room. At 80%+ most exchanges send a margin call warning. Best practice is to act before that.'}
+   ]},
+];
 
 /* ═══════════════════ LESSON ENGINE ═══════════════════ */
 const LESSONS=[
@@ -1591,6 +1895,7 @@ function buildQuiz(c){
 }
 
 function buildComplete(l){
+  const isW2Boss=l.id===11;
   return `<div class="complete-wrap">
     <div class="comp-glyph">${l.glyph}</div>
     <div class="comp-title">Lesson <em>complete</em></div>
@@ -1617,7 +1922,10 @@ function handleQuiz(opt){
 
 function lessonAdvance(){
   const l=LESSONS[S.currentLesson]; const total=l.cards.length+1;
-  if(S.currentCard>=total-1){completeLesson(S.currentLesson);goBack('screen-map');return;}
+  if(S.currentCard>=total-1){
+    if(S.currentLesson>=100){completeLesson(S.currentLesson);}
+    else{completeLesson(S.currentLesson);}
+    goBack('screen-map');return;}
   const prev=document.getElementById(`lcard-${S.currentCard}`);
   prev.classList.remove('active');prev.classList.add('exiting');
   setTimeout(()=>prev.classList.remove('exiting'),380);
@@ -1630,7 +1938,7 @@ function lessonAdvance(){
 }
 
 function updateLessonUI(){
-  const l=LESSONS[S.currentLesson]; const total=l.cards.length;
+  const l=S.currentLesson>=100?LESSONS2[S.currentLesson-100]:LESSONS[S.currentLesson]; const total=l.cards.length;
   const isComplete=S.currentCard===l.cards.length;
   const pct=isComplete?100:(S.currentCard/total)*100;
   document.getElementById('lpFill').style.width=pct+'%';
@@ -1643,7 +1951,10 @@ function updateLessonUI(){
 }
 
 function completeLesson(idx){
-  if(!S.completedLessons.has(idx)){S.completedLessons.add(idx);S.xp+=LESSONS[idx].xp;save();}
+  const realIdx=idx>=100?idx-100:null; // W2 uses offset 100
+  const xpAward=realIdx!==null?LESSONS2[realIdx].xp:(idx<LESSONS.length?LESSONS[idx].xp:0);
+  const globalIdx=realIdx!==null?realIdx+6:idx;
+  if(!S.completedLessons.has(globalIdx)){S.completedLessons.add(globalIdx);S.xp+=xpAward;save();}
   document.getElementById('xpVal').textContent=S.xp;
   document.getElementById('mapProgFill').style.width=Math.min((S.xp/1000)*100,100)+'%';
   renderMap();
@@ -2021,7 +2332,7 @@ function renderProfile(){
       <div class="badge${total>=1?'':' locked-badge'}"><div class="badge-icon">⇄</div><div class="badge-info"><div class="badge-name">First Trade</div><div class="badge-desc">Open a sim position</div></div></div>
       <div class="badge${wins>=3?'':' locked-badge'}"><div class="badge-icon">★</div><div class="badge-info"><div class="badge-name">3 Wins</div><div class="badge-desc">Win 3 sim trades</div></div></div>
       <div class="badge${S.streak>=7?'':' locked-badge'}"><div class="badge-icon">🔥</div><div class="badge-info"><div class="badge-name">Week Streak</div><div class="badge-desc">7-day streak</div></div></div>
-      <div class="badge${S.completedLessons.size>=6?'':' locked-badge'}"><div class="badge-icon">◈</div><div class="badge-info"><div class="badge-name">World 1 Complete</div><div class="badge-desc">Finish all lessons</div></div></div>
+      <div class="badge${S.completedLessons.size>=6?'':' locked-badge'}"><div class="badge-icon">◈</div><div class="badge-info"><div class="badge-name">World 1 Complete</div><div class="badge-desc">Finish all W1 lessons</div></div></div>
     </div>
     <div class="section-label" style="margin-bottom:12px">Streak</div>
     <div class="streak-section">
@@ -2210,11 +2521,31 @@ function dtRenderMap(){
     track.appendChild(row);
   });
   const dv=document.createElement('div'); dv.className='divider';
-  dv.innerHTML=`<div class="div-line"></div><div class="div-text">World 2 · Coming Next</div><div class="div-line"></div>`;
-  track.appendChild(dv);
-  const w2=document.createElement('div'); w2.className='node-row locked-row';
-  w2.innerHTML=`<div class="n-col"><div class="node n-w2" style="font-family:monospace">◉</div></div><div class="n-info locked-info"><div class="n-title" style="color:var(--muted2)">Advanced Mechanics</div><div class="n-sub" style="opacity:.5">Mark vs index · Cross vs isolated · Open interest</div><div class="n-tags"><span class="tag">Complete World 1</span></div></div>`;
-  track.appendChild(w2);
+  // ── World 2 ──
+  const dtw2hdr=document.createElement('div');dtw2hdr.className='world-row';dtw2hdr.style.cssText='padding-top:28px;';
+  dtw2hdr.innerHTML=`<div class="w-badge">World 2</div><div class="w-title">Advanced Mechanics</div>`;
+  track.appendChild(dtw2hdr);
+  LESSONS2.forEach((l,i)=>{
+    const gi=i+6;
+    const w1Complete=[...S.completedLessons].filter(x=>x<6).length===6;
+    const isDone=S.completedLessons.has(gi);
+    const isActive=w1Complete&&!isDone&&(gi===6||S.completedLessons.has(gi-1));
+    const isLocked=!isDone&&!isActive;
+    const isLast=i===LESSONS2.length-1;
+    const row=document.createElement('div');row.className=`node-row${isLocked?' locked-row':''}`;
+    const nodeClass=isDone?'node n-done':isActive?'node n-active':'node n-locked';
+    const dot=isDone?`<div class="ndot dot-done">✓</div>`:isActive?`<div class="ndot dot-active"></div>`:'';
+    const finalTag=l.boss?`<span class="final-tag">Final</span>`:'';
+    const tags=isLocked?`<div class="n-tags"><span class="tag">${w1Complete?'Locked':'Complete World 1'}</span></div>`:`<div class="n-tags"><span class="tag">${l.time}</span><span class="tag">${l.n} slides</span><span class="tag">+${l.xp} xp</span></div>`;
+    const stars=isDone?`<div class="stars-row">${[0,1,2].map(s=>`<div class="sd${s<(l.stars||0)?' ':' off'}"></div>`).join('')}</div>`:'';
+    const contBtn=isActive?`<button class="btn-cont" onclick="dtStartLesson2(${i})">Start →</button>`:isDone?`<button class="btn-cont" style="background:var(--gdim);color:var(--green);border:1px solid rgba(92,184,138,.3)" onclick="dtStartLesson2(${i})">Review</button>`:'';
+    const infoClass=`n-info${isActive?' active-info':''}${isLocked?' locked-info':''}`;
+    row.innerHTML=`${!isLast?`<div class="vline${isDone?' done':''}"></div>`:''}
+      <div class="n-col"><div class="${nodeClass}" ${!isLocked?`onclick="openSheet2(${i})"`:''}>${l.glyph}${dot}</div></div>
+      <div class="${infoClass}" ${!isLocked?`onclick="openSheet2(${i})"`:''}>
+        <div class="n-title">${l.name}${finalTag}</div><div class="n-sub">${l.desc}</div>${tags}${stars}${contBtn}</div>`;
+    track.appendChild(row);
+  });
   const done=S.completedLessons.size,total=LESSONS.length;
   const circ=document.getElementById('dtProgCircle');
   if(circ){const r=26,full=2*Math.PI*r;circ.style.strokeDashoffset=full-(full*(done/total));}
@@ -2229,6 +2560,25 @@ function dtRenderMap(){
 }
 
 function dtOpenSheet(i){openSheet(i);}
+function dtOpenSheet2(i){openSheet2(i);}
+
+function dtStartLesson2(idx){
+  dtCurLesson=idx+100;dtCurCard=0;dtQAnswered=false;dtQCorrect=false;
+  const l=LESSONS2[idx];
+  document.getElementById('dtLessonTitle').textContent=l.name;
+  document.getElementById('dtLessonXP').textContent=`+${l.xp} xp`;
+  const meta=document.getElementById('dtLessonMeta');
+  if(meta)meta.innerHTML=`<strong style="color:var(--text)">${l.n} slides</strong> · ${l.time}<br>+${l.xp} XP on completion<br><br>${l.desc}`;
+  const stage=document.getElementById('dtLessonStage'); stage.innerHTML='';
+  l.cards.forEach((c,ci)=>{
+    const div=document.createElement('div'); div.className='card'+(ci===0?' active':''); div.id=`dtlcard-${ci}`;
+    div.innerHTML=c.quiz?buildQuiz(c):c.render(); stage.appendChild(div);
+  });
+  const comp=document.createElement('div');comp.className='card';comp.id=`dtlcard-${l.cards.length}`;
+  comp.innerHTML=buildComplete(l); stage.appendChild(comp);
+  dtNavTo('lesson'); dtUpdateLUI();
+  setTimeout(()=>{ const s=document.getElementById('dtLessonStage');if(s)s.querySelectorAll('.opt').forEach(o=>o.onclick=()=>dtHandleQ(o)); },100);
+}
 
 let dtCurCard=0,dtQAnswered=false,dtQCorrect=false,dtCurLesson=0;
 function dtStartLesson(idx){
@@ -2265,7 +2615,7 @@ function dtHandleQ(opt){
 
 function dtLessonAdvance(){
   const l=LESSONS[dtCurLesson],total=l.cards.length+1;
-  if(dtCurCard>=total-1){completeLesson(dtCurLesson);dtSyncSidebar();dtNavTo('map');return;}
+  if(dtCurCard>=total-1){completeLesson(dtCurLesson);dtSyncSidebar();dtNavTo('map');dtRenderMap();return;}
   const prev=document.getElementById(`dtlcard-${dtCurCard}`);
   if(prev){prev.classList.remove('active');prev.classList.add('exiting');setTimeout(()=>prev.classList.remove('exiting'),380);}
   dtCurCard++;dtQAnswered=false;
@@ -2277,7 +2627,7 @@ function dtLessonAdvance(){
 }
 
 function dtUpdateLUI(){
-  const l=LESSONS[dtCurLesson],total=l.cards.length,isComplete=dtCurCard===l.cards.length;
+  const l=dtCurLesson>=100?LESSONS2[dtCurLesson-100]:LESSONS[dtCurLesson],total=l.cards.length,isComplete=dtCurCard===l.cards.length;
   const pct=isComplete?100:(dtCurCard/total)*100;
   const lf=document.getElementById('dtLpFill');if(lf)lf.style.width=pct+'%';
   const ll=document.getElementById('dtLpLabel');if(ll)ll.textContent=`${dtCurCard}/${total}`;
