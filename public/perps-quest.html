@@ -2614,14 +2614,18 @@ function dtHandleQ(opt){
 }
 
 function dtLessonAdvance(){
-  const l=LESSONS[dtCurLesson],total=l.cards.length+1;
+  const l=dtCurLesson>=100?LESSONS2[dtCurLesson-100]:LESSONS[dtCurLesson];
+  const total=l.cards.length+1;
   if(dtCurCard>=total-1){completeLesson(dtCurLesson);dtSyncSidebar();dtNavTo('map');dtRenderMap();return;}
   const prev=document.getElementById(`dtlcard-${dtCurCard}`);
   if(prev){prev.classList.remove('active');prev.classList.add('exiting');setTimeout(()=>prev.classList.remove('exiting'),380);}
   dtCurCard++;dtQAnswered=false;
   const next=document.getElementById(`dtlcard-${dtCurCard}`);
-  if(next){next.classList.add('entering');requestAnimationFrame(()=>requestAnimationFrame(()=>{next.classList.remove('entering');next.classList.add('active');}));}
-  if(dtCurCard===l.cards.length&&next)next.innerHTML=buildComplete(l);
+  if(next){
+    next.classList.add('entering');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{next.classList.remove('entering');next.classList.add('active');}));
+    if(dtCurCard===l.cards.length)next.innerHTML=buildComplete(l);
+  }
   setTimeout(()=>{const s=document.getElementById('dtLessonStage');if(s)s.querySelectorAll('.opt').forEach(o=>o.onclick=()=>dtHandleQ(o));},100);
   dtUpdateLUI();
 }
