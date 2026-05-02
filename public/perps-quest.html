@@ -90,10 +90,10 @@ html.light .tc-neg{color:var(--red);background:rgba(192,57,43,.1);}
 html.light .ticker-change.tc-pos{color:var(--green);background:rgba(46,138,92,.1);}
 html.light .ticker-change.tc-neg{color:var(--red);background:rgba(192,57,43,.1);}
 *{margin:0;padding:0;box-sizing:border-box;}
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;}@media(max-width:899px){html,body{overflow:hidden;}}
 
 /* ── MOBILE SHELL (default) ── */
-.app{max-width:480px;margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;position:relative;overflow:hidden;}
+.app{max-width:480px;margin:0 auto;position:relative;}
 @media(min-width:481px) and (max-width:899px){.app{border-left:1px solid var(--border);border-right:1px solid var(--border);}}
 
 /* ════════════════════════════════════════
@@ -311,15 +311,26 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 }
 
 /* SCREENS */
-.screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);transition:transform 0.38s cubic-bezier(0.4,0,0.2,1),opacity 0.38s ease;opacity:0;pointer-events:none;transform:translateX(100%);overflow:hidden;}
+.screen{
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  left:max(0px, calc(50vw - 240px));
+  right:max(0px, calc(50vw - 240px));
+  background:var(--bg);
+  transition:transform 0.38s cubic-bezier(0.4,0,0.2,1),opacity 0.38s ease;
+  opacity:0;pointer-events:none;transform:translateX(100%);
+  overflow:hidden;
+  display:flex;flex-direction:column;
+}
+@media(min-width:900px){.screen{display:none!important;}}
 .screen.active{opacity:1;pointer-events:all;transform:translateX(0);}
 .screen.behind{transform:translateX(-30px);opacity:0;}
 
-.scroll-body{flex:1;overflow-y:auto;overflow-x:hidden;min-height:0;}
+.scroll-body{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-top:70px;padding-bottom:90px;}@media(min-width:900px){.scroll-body{padding-top:0;padding-bottom:0;flex:1;min-height:0;}}
 .scroll-body::-webkit-scrollbar{width:0;}
 
 /* SHARED HEADER */
-.s-hdr{flex-shrink:0;padding:15px 20px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);background:var(--bg);}
+.s-hdr{position:fixed;top:0;left:max(0px,calc(50vw - 240px));right:max(0px,calc(50vw - 240px));z-index:60;padding:15px 20px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);background:var(--bg);}@media(min-width:900px){.s-hdr{position:relative;top:auto;left:auto;right:auto;}}
 .back-btn{width:34px;height:34px;border-radius:50%;background:var(--surface);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.85rem;color:var(--muted);transition:background .15s;flex-shrink:0;}
 .back-btn:hover{background:var(--s2);color:var(--text);}
 .hdr-title{font-family:'DM Serif Display',serif;font-size:1rem;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -331,7 +342,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .xp-chip{flex-shrink:0;font-size:.72rem;font-weight:600;color:var(--amber);background:var(--adim);border:1px solid rgba(212,146,74,.2);padding:4px 10px;border-radius:20px;}
 
 /* PROGRESS BAR */
-.prog-strip{flex-shrink:0;padding:10px 22px 0;}
+.prog-strip{position:fixed;top:66px;left:max(0px,calc(50vw - 240px));right:max(0px,calc(50vw - 240px));z-index:59;padding:10px 22px 8px;background:var(--bg);border-bottom:1px solid var(--border);}@media(min-width:900px){.prog-strip{position:relative;top:auto;left:auto;right:auto;border-bottom:none;padding:10px 22px 0;}}
 .prog-meta{display:flex;justify-content:space-between;margin-bottom:7px;}
 .prog-meta span{font-size:.72rem;color:var(--muted);}
 .prog-meta strong{color:var(--accent);font-weight:600;}
@@ -417,7 +428,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .gterm{color:var(--amber);text-decoration:underline;text-decoration-style:dotted;cursor:pointer;}
 
 /* ══════════════ MAP ══════════════ */
-.map-header{flex-shrink:0;padding:18px 22px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--bg);}
+.map-header{position:fixed;top:0;left:max(0px,calc(50vw - 240px));right:max(0px,calc(50vw - 240px));z-index:60;padding:18px 22px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--bg);}@media(min-width:900px){.map-header{position:relative;top:auto;left:auto;right:auto;}}
 .logo{font-family:'DM Serif Display',serif;font-size:1.3rem;letter-spacing:-.02em;}
 .logo em{font-style:italic;color:var(--accent);}
 .hdr-chips{display:flex;gap:6px;}
@@ -468,17 +479,17 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .div-text{font-size:.67rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:500;white-space:nowrap;}
 
 /* ══════════════ LESSON ══════════════ */
-.lp-track{flex-shrink:0;padding:10px 20px 0;display:flex;align-items:center;gap:8px;}
+.lp-track{position:fixed;top:64px;left:max(0px,calc(50vw - 240px));right:max(0px,calc(50vw - 240px));z-index:58;padding:10px 20px 8px;background:var(--bg);display:flex;align-items:center;gap:8px;}@media(min-width:900px){.lp-track{position:relative;top:auto;left:auto;right:auto;padding:10px 20px 0;}}
 .lp-bar{flex:1;height:3px;background:var(--s2);border-radius:2px;overflow:hidden;}
 .lp-fill{height:100%;background:linear-gradient(90deg,var(--amber),var(--accent));border-radius:2px;transition:width .5s cubic-bezier(.4,0,.2,1);}
 .lp-label{font-size:.72rem;color:var(--muted);flex-shrink:0;}
-.stage{flex:1;position:relative;overflow:hidden;}
+.stage{position:fixed;top:100px;left:max(0px,calc(50vw - 240px));right:max(0px,calc(50vw - 240px));bottom:80px;overflow:hidden;}@media(min-width:900px){.stage{position:relative;top:auto;left:auto;right:auto;bottom:auto;flex:1;}}
 .card{position:absolute;inset:0;padding:26px 22px 20px;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .3s ease,transform .35s cubic-bezier(.4,0,.2,1);transform:translateX(40px);overflow-y:auto;}
 .card::-webkit-scrollbar{width:0;}
 .card.active{opacity:1;pointer-events:all;transform:translateX(0);}
 .card.exiting{opacity:0;transform:translateX(-40px);}
 .card.entering{opacity:0;transform:translateX(40px);}
-.cta-bar{flex-shrink:0;padding:12px 20px max(80px,calc(env(safe-area-inset-bottom) + 70px));border-top:1px solid var(--border);background:var(--bg);}@media(min-width:900px){.cta-bar{padding:12px 20px 24px;}}
+.cta-bar{position:fixed;bottom:0;left:max(0px,calc(50vw - 240px));right:max(0px,calc(50vw - 240px));z-index:60;padding:12px 20px max(calc(env(safe-area-inset-bottom) + 70px),80px);border-top:1px solid var(--border);background:var(--bg);}@media(min-width:900px){.cta-bar{position:relative;bottom:auto;left:auto;right:auto;padding:12px 20px 24px;}}
 .cta-btn{width:100%;padding:14px;background:var(--amber);color:#0c0c0f;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:600;cursor:pointer;letter-spacing:.01em;transition:background .15s,transform .12s,opacity .15s;}
 .cta-btn:hover{background:#c8893d;transform:translateY(-1px);}
 .cta-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;}
@@ -556,7 +567,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .ticker-meta{font-size:.68rem;color:var(--muted);margin-top:3px;}
 
 /* Asset selector */
-.asset-tabs{flex-shrink:0;display:flex;gap:6px;padding:10px 20px;border-bottom:1px solid var(--border);background:var(--bg);}
+.asset-tabs{flex-shrink:0;display:flex;gap:6px;padding:10px 20px;border-bottom:1px solid var(--border);background:var(--bg);}@media(max-width:899px){#screen-sim .asset-tabs{margin-top:64px;}}
 .asset-tab{flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--b2);background:var(--surface);cursor:pointer;text-align:center;transition:all .15s;}
 .asset-tab.on{border-color:rgba(212,146,74,.5);background:var(--adim);}
 .at-sym{font-size:.75rem;font-weight:700;color:var(--muted);display:block;}
@@ -598,7 +609,7 @@ canvas#priceChart{display:block;}
 .close-pos-btn:hover{background:rgba(224,100,100,.22);}
 
 /* Trade form */
-.sim-body{flex:1;overflow-y:auto;padding:16px 20px 100px;}
+.sim-body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 20px 100px;padding-top:16px;}@media(min-width:900px){.sim-body{flex:1;padding-top:16px;}}
 .sim-body::-webkit-scrollbar{width:0;}
 .form-section{margin-bottom:20px;}
 .form-label{font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
@@ -761,7 +772,7 @@ canvas#pnlChart{display:block;}
     <div class="prog-meta"><span id="levelLabel">Level 3 · Apprentice</span><span><strong id="xpVal">550</strong> / 1000 xp</span></div>
     <div class="prog-bar"><div class="prog-fill" id="mapProgFill" style="width:55%"></div></div>
   </div>
-  <div class="scroll-body"><div class="world-row">
+  <div class="scroll-body" style="padding-top:120px"><div class="world-row">
     <div class="w-badge">World 1</div>
     <div class="w-title">The Fundamentals</div>
   </div><div class="track" id="track"></div></div>
@@ -891,7 +902,7 @@ canvas#pnlChart{display:block;}
     <div class="back-btn" onclick="goBack('screen-map')">←</div>
     <div style="flex:1"><div class="hdr-title">Glossary</div><div class="hdr-sub">Tap any term for a full definition</div></div>
   </div>
-  <div class="glossary-search"><input class="g-input" id="glossarySearch" placeholder="Search terms…" oninput="filterGlossary(this.value)"></div>
+  <div class="glossary-search" style="padding-top:70px;"><input class="g-input" id="glossarySearch" placeholder="Search terms…" oninput="filterGlossary(this.value)"></div>
   <div class="scroll-body"><div class="glossary-wrap" id="glossaryWrap"></div></div>
 </div>
 
