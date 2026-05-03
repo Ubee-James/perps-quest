@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Learn perpetual contracts properly. 12 interactive lessons, a paper trading simulator, and real market data. Free.">
+<title>Perps Quest — Learn Perpetual Contracts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #09090c;
+  --surface: #111116;
+  --s2: #18181f;
+  --border: rgba(255,255,255,0.06);
+  --b2: rgba(255,255,255,0.10);
+  --text: #f0eff5;
+  --muted: rgba(240,239,245,0.45);
+  --muted2: rgba(240,239,245,0.22);
+  --amber: #d4924a;
+  --amber2: #b8742a;
+  --green: #4ea87a;
+  --red: #d45a5a;
+  --col: 720px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; background: var(--bg); }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ── NOISE GRAIN ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.35;
+}
+
+.wrap { position: relative; z-index: 1; }
+
+/* ── TICKER TAPE ── */
+.ticker-tape {
+  background: var(--amber);
+  padding: 7px 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.ticker-inner {
+  display: inline-block;
+  animation: ticker 28s linear infinite;
+}
+.ticker-inner span {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: #0c0c0f;
+  padding: 0 28px;
+  letter-spacing: 0.04em;
+}
+.ticker-inner span.sep { opacity: 0.4; padding: 0; }
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ── MASTHEAD ── */
+.masthead {
+  max-width: calc(var(--col) + 120px);
+  margin: 0 auto;
+  padding: 28px 40px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  gap: 20px;
+}
+
+.logo-lockup {
+  display: flex; flex-direction: column; gap: 3px;
+}
+.logo-name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  line-height: 1;
+}
+.logo-name em { font-style: italic; color: var(--amber); }
+.logo-tagline {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.nav-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--text);
+  color: var(--bg);
+  padding: 10px 22px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background 0.15s, transform 0.15s;
+  white-space: nowrap;
+}
+.nav-cta:hover { background: var(--amber); transform: translateY(-1px); }
+
+/* ── HERO ── */
+.hero {
+  max-width: calc(var(--col) + 120px);
+  margin: 0 auto;
+  padding: 80px 40px 60px;
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 60px;
+  align-items: start;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-kicker {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 22px;
+  display: flex; align-items: center; gap: 10px;
+}
+.hero-kicker::before {
+  content: '';
+  display: block; width: 24px; height: 1px; background: var(--amber);
+}
+
+.hero-headline {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(2.8rem, 5.5vw, 4.4rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin-bottom: 28px;
+}
+.hero-headline em { font-style: italic; color: var(--amber); }
+.hero-headline .strike {
+  position: relative; color: var(--muted);
+}
+.hero-headline .strike::after {
+  content: '';
+  position: absolute; left: 0; right: 0;
+  top: 50%; height: 2px; background: var(--red);
+  transform: rotate(-2deg);
+}
+
+.hero-body {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--muted);
+  margin-bottom: 36px;
+  max-width: 480px;
+}
+.hero-body strong { color: var(--text); font-weight: 500; }
+
+.hero-actions {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--amber);
+  color: #0c0c0f;
+  padding: 14px 28px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background 0.15s, transform 0.15s;
+}
+.btn-primary:hover { background: #c47d2a; transform: translateY(-2px); }
+
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: color 0.15s;
+}
+.btn-ghost:hover { color: var(--text); }
+
+/* ── HERO SIDE: live price card ── */
+.hero-card {
+  background: var(--surface);
+  border: 1px solid var(--b2);
+  border-radius: 12px;
+  overflow: hidden;
+  position: sticky; top: 24px;
+}
+
+.hc-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.hc-pair {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+.hc-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--green);
+  background: rgba(78,168,122,0.12);
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+
+.hc-price {
+  padding: 18px 18px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.hc-price-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.hc-price-change {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--green);
+}
+
+.hc-chart {
+  padding: 10px 18px 4px;
+  height: 80px; position: relative;
+}
+canvas#miniChart { display: block; }
+
+.hc-stats {
+  display: grid; grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--border);
+}
+.hc-stat {
+  padding: 12px 18px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.hc-stat:nth-child(even) { border-right: none; }
+.hc-stat:nth-last-child(-n+2) { border-bottom: none; }
+.hc-stat-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted2); margin-bottom: 4px;
+}
+.hc-stat-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.82rem; font-weight: 500; color: var(--text);
+}
+.hc-stat-val.pos { color: var(--green); }
+.hc-stat-val.neg { color: var(--red); }
+.hc-stat-val.amber { color: var(--amber); }
+
+.hc-footer {
+  padding: 12px 18px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem; color: var(--muted2); letter-spacing: 0.06em;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 6px;
+}
+.pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s ease-in-out infinite; flex-shrink: 0; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* ── SECTION WRAPPER ── */
+.section {
+  max-width: calc(var(--col) + 120px);
+  margin: 0 auto;
+  padding: 80px 40px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 40px;
+  display: flex; align-items: center; gap: 12px;
+}
+.section-label::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ── PROBLEM SECTION ── */
+.problem-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+  background: var(--border); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+}
+.problem-cell {
+  background: var(--bg);
+  padding: 28px 30px;
+  position: relative;
+}
+.pc-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem; font-weight: 900; color: var(--border);
+  position: absolute; top: 16px; right: 20px;
+  line-height: 1; pointer-events: none;
+}
+.pc-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem; font-weight: 700;
+  color: var(--text); margin-bottom: 10px; line-height: 1.25;
+}
+.pc-body {
+  font-size: 0.84rem; line-height: 1.65; color: var(--muted);
+}
+.pc-body strong { color: var(--text); font-weight: 500; }
+
+/* ── LESSONS TABLE ── */
+.lessons-header {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.lh-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem; font-weight: 700; letter-spacing: -0.02em;
+}
+.lh-title em { font-style: italic; color: var(--amber); }
+.lh-count {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem; color: var(--muted); letter-spacing: 0.06em;
+}
+
+.lessons-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+  background: var(--border); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; margin-top: 28px;
+}
+.lesson-item {
+  background: var(--bg);
+  padding: 18px 22px;
+  display: flex; align-items: center; gap: 14px;
+  transition: background 0.15s;
+  cursor: default;
+}
+.lesson-item:hover { background: var(--surface); }
+.li-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem; color: var(--amber);
+  font-weight: 500; min-width: 24px; flex-shrink: 0;
+}
+.li-info { flex: 1; min-width: 0; }
+.li-name {
+  font-size: 0.88rem; font-weight: 500; color: var(--text);
+  margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.li-meta {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem; color: var(--muted2); letter-spacing: 0.04em;
+}
+.li-world {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem; letter-spacing: 0.08em;
+  padding: 2px 7px; border-radius: 3px; flex-shrink: 0;
+}
+.w1-badge { background: rgba(212,146,74,0.12); color: var(--amber); }
+.w2-badge { background: rgba(78,168,122,0.12); color: var(--green); }
+
+/* ── SIMULATOR PREVIEW ── */
+.sim-preview {
+  background: var(--surface);
+  border: 1px solid var(--b2);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 28px;
+}
+.sp-header {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sp-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem; color: var(--muted); letter-spacing: 0.06em;
+}
+.sp-live {
+  display: flex; align-items: center; gap: 5px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem; color: var(--green); letter-spacing: 0.06em;
+}
+.sp-body {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px;
+  background: var(--border);
+}
+.sp-cell {
+  background: var(--surface);
+  padding: 16px 18px;
+}
+.sp-cell-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted2); margin-bottom: 6px;
+}
+.sp-cell-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.35rem; font-weight: 700; color: var(--text);
+}
+.sp-cell-val.pos { color: var(--green); }
+.sp-cell-val.neg { color: var(--red); }
+.sp-cell-val.amber { color: var(--amber); }
+.sp-cell-sub { font-size: 0.7rem; color: var(--muted); margin-top: 3px; }
+.sp-footer {
+  padding: 12px 18px;
+  border-top: 1px solid var(--border);
+  font-size: 0.75rem; color: var(--muted);
+}
+
+/* ── PULL QUOTE ── */
+.pull-quote {
+  padding: 60px 0;
+  text-align: center;
+}
+.pq-text {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  font-weight: 400; font-style: italic;
+  line-height: 1.35; letter-spacing: -0.01em;
+  color: var(--text); max-width: 680px; margin: 0 auto 20px;
+}
+.pq-text em { color: var(--amber); font-style: normal; }
+.pq-source {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ── FEATURES ROW ── */
+.features {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 2px;
+  background: var(--border); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+}
+.feat {
+  background: var(--bg);
+  padding: 30px 28px;
+}
+.feat-icon {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.2rem; color: var(--amber);
+  margin-bottom: 16px; display: block;
+}
+.feat-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem; font-weight: 700;
+  color: var(--text); margin-bottom: 10px; line-height: 1.2;
+}
+.feat-body {
+  font-size: 0.83rem; line-height: 1.65; color: var(--muted);
+}
+.feat-body strong { color: var(--text); font-weight: 500; }
+
+/* ── STATS BAR ── */
+.stats-bar {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 2px; background: var(--border);
+  border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+}
+.sb-cell {
+  background: var(--bg); padding: 28px 24px; text-align: center;
+}
+.sb-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem; font-weight: 900;
+  color: var(--text); line-height: 1; margin-bottom: 8px;
+}
+.sb-num em { font-style: italic; color: var(--amber); }
+.sb-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); line-height: 1.4;
+}
+
+/* ── CTA SECTION ── */
+.cta-section {
+  max-width: calc(var(--col) + 120px);
+  margin: 0 auto;
+  padding: 100px 40px;
+  text-align: center;
+}
+.cta-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--amber); margin-bottom: 24px;
+}
+.cta-headline {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 900; line-height: 1.08; letter-spacing: -0.03em;
+  color: var(--text); margin-bottom: 20px;
+}
+.cta-headline em { font-style: italic; color: var(--amber); }
+.cta-sub {
+  font-size: 1rem; color: var(--muted); line-height: 1.7;
+  max-width: 480px; margin: 0 auto 40px;
+}
+.cta-pill-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; flex-wrap: wrap; margin-bottom: 40px;
+}
+.cta-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--surface); border: 1px solid var(--b2);
+  border-radius: 20px; padding: 6px 14px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem; color: var(--muted); letter-spacing: 0.04em;
+}
+.cta-btn-big {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--amber); color: #0c0c0f;
+  padding: 16px 36px;
+  font-size: 0.92rem; font-weight: 500;
+  letter-spacing: 0.02em;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background 0.15s, transform 0.15s;
+}
+.cta-btn-big:hover { background: #c47d2a; transform: translateY(-2px); }
+.cta-footnote {
+  margin-top: 18px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem; letter-spacing: 0.06em; color: var(--muted2);
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 32px 40px;
+  display: flex; align-items: center; justify-content: space-between;
+  max-width: calc(var(--col) + 120px);
+  margin: 0 auto;
+  gap: 20px; flex-wrap: wrap;
+}
+.foot-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem; font-weight: 700;
+}
+.foot-logo em { font-style: italic; color: var(--amber); }
+.foot-copy {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem; color: var(--muted2); letter-spacing: 0.04em;
+}
+.foot-links {
+  display: flex; gap: 20px;
+}
+.foot-links a {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--muted); text-decoration: none; transition: color 0.15s;
+}
+.foot-links a:hover { color: var(--text); }
+
+/* ── SCROLL REVEALS ── */
+.reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px) {
+  .masthead { padding: 20px; }
+  .hero { grid-template-columns: 1fr; gap: 40px; padding: 48px 20px 40px; }
+  .hero-card { position: static; }
+  .section { padding: 56px 20px; }
+  .problem-grid { grid-template-columns: 1fr; }
+  .lessons-grid { grid-template-columns: 1fr; }
+  .features { grid-template-columns: 1fr; }
+  .stats-bar { grid-template-columns: 1fr 1fr; }
+  .sp-body { grid-template-columns: 1fr 1fr; }
+  .cta-section { padding: 64px 20px; }
+  footer { padding: 24px 20px; flex-direction: column; align-items: flex-start; gap: 16px; }
+  .hero-headline { font-size: 2.6rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- TICKER TAPE -->
+<div class="ticker-tape">
+  <div class="ticker-inner" id="ticker">
+    <span>BTC/USD <span id="t1">$95,420</span></span><span class="sep"> · </span>
+    <span>ETH/USD <span id="t2">$3,218</span></span><span class="sep"> · </span>
+    <span>SOL/USD <span id="t3">$148</span></span><span class="sep"> · </span>
+    <span>Funding Rate <span style="color:#0a5c35">+0.01%</span></span><span class="sep"> · </span>
+    <span>Open Interest $28.4B</span><span class="sep"> · </span>
+    <span>24h Volume $112B</span><span class="sep"> · </span>
+    <span>BTC/USD <span id="t4">$95,420</span></span><span class="sep"> · </span>
+    <span>ETH/USD <span id="t5">$3,218</span></span><span class="sep"> · </span>
+    <span>SOL/USD <span id="t6">$148</span></span><span class="sep"> · </span>
+    <span>Funding Rate <span style="color:#0a5c35">+0.01%</span></span><span class="sep"> · </span>
+    <span>Open Interest $28.4B</span><span class="sep"> · </span>
+    <span>24h Volume $112B</span><span class="sep"> · </span>
+  </div>
+</div>
+
+<!-- MASTHEAD -->
+<header class="masthead">
+  <div class="logo-lockup">
+    <div class="logo-name">Perps<em>Quest</em></div>
+    <div class="logo-tagline">The perps learning platform</div>
+  </div>
+  <a href="https://perps-quest.vercel.app" class="nav-cta">Start Learning →</a>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-kicker">Founder's Note · May 2026</div>
+    <h1 class="hero-headline">
+      We built a <em>flight simulator</em><br>
+      for <span class="strike">losing money</span><br>
+      crypto trading
+    </h1>
+    <p class="hero-body">
+      Perpetual contracts move <strong>over $100 billion a day</strong>. Most people trading them have no idea what a funding rate is. They find out what a liquidation price is by hitting one. We think that's a problem worth fixing.
+    </p>
+    <div class="hero-actions">
+      <a href="https://perps-quest.vercel.app" class="btn-primary">Start for free →</a>
+      <a href="#lessons" class="btn-ghost">See the curriculum ↓</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-card">
+      <div class="hc-header">
+        <span class="hc-pair">BTC / USD · PERP</span>
+        <span class="hc-badge">Simulated</span>
+      </div>
+      <div class="hc-price">
+        <div class="hc-price-num" id="heroPrice">$95,420</div>
+        <div class="hc-price-change" id="heroPriceChange">+2.4% today</div>
+      </div>
+      <div class="hc-chart">
+        <canvas id="miniChart" style="width:100%;height:70px"></canvas>
+      </div>
+      <div class="hc-stats">
+        <div class="hc-stat">
+          <div class="hc-stat-label">Funding Rate</div>
+          <div class="hc-stat-val amber">+0.01%</div>
+        </div>
+        <div class="hc-stat">
+          <div class="hc-stat-label">Next in</div>
+          <div class="hc-stat-val" id="fundingTimer">7:59:42</div>
+        </div>
+        <div class="hc-stat">
+          <div class="hc-stat-label">Open Interest</div>
+          <div class="hc-stat-val">$28.4B</div>
+        </div>
+        <div class="hc-stat">
+          <div class="hc-stat-label">24h Volume</div>
+          <div class="hc-stat-val">$112B</div>
+        </div>
+      </div>
+      <div class="hc-footer">
+        <div class="pulse"></div>
+        Real 30-day data · Paper trading only
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="section reveal">
+  <div class="section-label">The problem</div>
+  <div class="problem-grid">
+    <div class="problem-cell">
+      <div class="pc-num">01</div>
+      <div class="pc-title">They find out what liquidation means by hitting it</div>
+      <div class="pc-body">At 20× leverage, a <strong>5% move</strong> against you wipes half your collateral. Most traders discover this the expensive way. The information existed — it just wasn't explained anywhere useful.</div>
+    </div>
+    <div class="problem-cell">
+      <div class="pc-num">02</div>
+      <div class="pc-title">Funding rates drain accounts while people sleep</div>
+      <div class="pc-body">Every 8 hours, a fee is quietly paid between longs and shorts. <strong>Most traders don't know it exists</strong> until they check their balance a week later and wonder where it went.</div>
+    </div>
+    <div class="problem-cell">
+      <div class="pc-num">03</div>
+      <div class="pc-title">The information exists — it's just buried</div>
+      <div class="pc-body">Scattered across YouTube videos, Reddit threads, and exchange documentation written for people who <strong>already know what they're reading</strong>. There's no clear path from curious to competent.</div>
+    </div>
+    <div class="problem-cell">
+      <div class="pc-num">04</div>
+      <div class="pc-title">Reading isn't enough. You have to feel it.</div>
+      <div class="pc-body">You can read about leverage all day. The concept only really lands when you watch your <strong>liquidation price sitting on the chart</strong> as a red line, moving closer with every tick.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PULL QUOTE -->
+<div class="section" style="border-bottom:1px solid var(--border);padding:0 40px;">
+  <div class="pull-quote reveal">
+    <p class="pq-text">"The goal was never to make people better traders. It was to make sure they <em>understood</em> what they were getting into before they found out the hard way."</p>
+    <div class="pq-source">— Founder, Perps Quest</div>
+  </div>
+</div>
+
+<!-- LESSONS -->
+<section class="section reveal" id="lessons">
+  <div class="section-label">The curriculum</div>
+  <div class="lessons-header">
+    <div class="lh-title">12 lessons.<br><em>Two worlds.</em></div>
+    <div class="lh-count">~4 hours total</div>
+  </div>
+  <div class="lessons-grid">
+    <div class="lesson-item"><div class="li-num">01</div><div class="li-info"><div class="li-name">What Are Perps?</div><div class="li-meta">5 min · 3 slides</div></div><div class="li-world w1-badge">W1</div></div>
+    <div class="lesson-item"><div class="li-num">02</div><div class="li-info"><div class="li-name">Long vs Short</div><div class="li-meta">6 min · 4 slides</div></div><div class="li-world w1-badge">W1</div></div>
+    <div class="lesson-item"><div class="li-num">03</div><div class="li-info"><div class="li-name">Leverage</div><div class="li-meta">8 min · 5 slides</div></div><div class="li-world w1-badge">W1</div></div>
+    <div class="lesson-item"><div class="li-num">04</div><div class="li-info"><div class="li-name">Liquidations</div><div class="li-meta">9 min · 4 slides</div></div><div class="li-world w1-badge">W1</div></div>
+    <div class="lesson-item"><div class="li-num">05</div><div class="li-info"><div class="li-name">Funding Rates</div><div class="li-meta">7 min · 4 slides</div></div><div class="li-world w1-badge">W1</div></div>
+    <div class="lesson-item"><div class="li-num">06</div><div class="li-info"><div class="li-name">Your First Trade</div><div class="li-meta">15 min · Boss level</div></div><div class="li-world w1-badge">W1</div></div>
+    <div class="lesson-item"><div class="li-num">07</div><div class="li-info"><div class="li-name">Mark vs Index Price</div><div class="li-meta">7 min · 4 slides</div></div><div class="li-world w2-badge">W2</div></div>
+    <div class="lesson-item"><div class="li-num">08</div><div class="li-info"><div class="li-name">Cross vs Isolated Margin</div><div class="li-meta">8 min · 4 slides</div></div><div class="li-world w2-badge">W2</div></div>
+    <div class="lesson-item"><div class="li-num">09</div><div class="li-info"><div class="li-name">Open Interest</div><div class="li-meta">7 min · 4 slides</div></div><div class="li-world w2-badge">W2</div></div>
+    <div class="lesson-item"><div class="li-num">10</div><div class="li-info"><div class="li-name">Order Types</div><div class="li-meta">8 min · 4 slides</div></div><div class="li-world w2-badge">W2</div></div>
+    <div class="lesson-item"><div class="li-num">11</div><div class="li-info"><div class="li-name">Risk Management</div><div class="li-meta">10 min · 5 slides</div></div><div class="li-world w2-badge">W2</div></div>
+    <div class="lesson-item"><div class="li-num">12</div><div class="li-info"><div class="li-name">Reading a Perps Interface</div><div class="li-meta">15 min · Boss level</div></div><div class="li-world w2-badge">W2</div></div>
+  </div>
+</section>
+
+<!-- SIMULATOR -->
+<section class="section reveal">
+  <div class="section-label">Paper trading simulator</div>
+  <div style="max-width:560px;margin-bottom:24px;">
+    <h2 style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;letter-spacing:-0.02em;margin-bottom:12px;">Real data. <em style="color:var(--amber)">No real risk.</em></h2>
+    <p style="font-size:0.9rem;line-height:1.7;color:var(--muted);">After each lesson, open positions against actual 30-day BTC, ETH, and SOL price history. Watch the funding rate clock tick. See your liquidation price on the chart. Close in profit or get liquidated — all with play money.</p>
+  </div>
+  <div class="sim-preview">
+    <div class="sp-header">
+      <div class="sp-title">PAPER TRADER · BTC/USD PERP</div>
+      <div class="sp-live"><div class="pulse"></div> LIVE SIMULATION</div>
+    </div>
+    <div class="sp-body">
+      <div class="sp-cell">
+        <div class="sp-cell-label">Position</div>
+        <div class="sp-cell-val amber">10× Long</div>
+        <div class="sp-cell-sub">$5,000 exposure</div>
+      </div>
+      <div class="sp-cell">
+        <div class="sp-cell-label">Unrealised P&L</div>
+        <div class="sp-cell-val pos" id="simPnl">+$248</div>
+        <div class="sp-cell-sub">+24.8% on collateral</div>
+      </div>
+      <div class="sp-cell">
+        <div class="sp-cell-label">Liq. Price</div>
+        <div class="sp-cell-val neg">$85,910</div>
+        <div class="sp-cell-sub">9.7% away</div>
+      </div>
+    </div>
+    <div class="sp-footer">Simulated position · $500 collateral · Entry $95,000 · Funding paid: $0.24</div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section reveal">
+  <div class="section-label">What's included</div>
+  <div class="features">
+    <div class="feat">
+      <span class="feat-icon">◎</span>
+      <div class="feat-title">Interactive Lessons</div>
+      <div class="feat-body">Slide-by-slide explainers with <strong>real analogies</strong>, visual diagrams, worked scenarios, and quiz cards with instant feedback. Not a video. Not a PDF. Something you actually interact with.</div>
+    </div>
+    <div class="feat">
+      <span class="feat-icon">⇄</span>
+      <div class="feat-title">Paper Trade Simulator</div>
+      <div class="feat-body">Open, manage, and close positions against <strong>real 30-day market data</strong>. BTC, ETH, and SOL. Funding rate clock ticks in real time. Liquidation line sits on the chart.</div>
+    </div>
+    <div class="feat">
+      <span class="feat-icon">≡</span>
+      <div class="feat-title">Full Glossary</div>
+      <div class="feat-body">Every term defined clearly. <strong>Tappable inline</strong> throughout lessons — see the definition without losing your place. 32 terms covering everything from basis to portfolio heat.</div>
+    </div>
+    <div class="feat">
+      <span class="feat-icon">↑</span>
+      <div class="feat-title">Progress & XP</div>
+      <div class="feat-body">Earn XP, maintain streaks, unlock badges. <strong>Cross-device sync</strong> keeps your progress wherever you are. Leaderboard ranks you against other learners.</div>
+    </div>
+    <div class="feat">
+      <span class="feat-icon">◈</span>
+      <div class="feat-title">Two Full Worlds</div>
+      <div class="feat-body">World 1 covers the fundamentals. World 2 covers the advanced mechanics pros use — <strong>mark price, OI, order types, risk management</strong>. World 3 is in development.</div>
+    </div>
+    <div class="feat">
+      <span class="feat-icon">$</span>
+      <div class="feat-title">Completely Free</div>
+      <div class="feat-body">No paywall. No premium tier. No upsell. <strong>All 12 lessons</strong> and the full simulator are free. We believe financial education shouldn't cost money to access.</div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="section reveal">
+  <div class="stats-bar">
+    <div class="sb-cell">
+      <div class="sb-num">12</div>
+      <div class="sb-label">Interactive lessons</div>
+    </div>
+    <div class="sb-cell">
+      <div class="sb-num"><em>3</em></div>
+      <div class="sb-label">Assets to simulate</div>
+    </div>
+    <div class="sb-cell">
+      <div class="sb-num">30d</div>
+      <div class="sb-label">Real price history</div>
+    </div>
+    <div class="sb-cell">
+      <div class="sb-num">$<em>0</em></div>
+      <div class="sb-label">To get started</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section reveal">
+  <div class="cta-eyebrow">Get started</div>
+  <h2 class="cta-headline">The funding rate clock<br>is <em>ticking.</em></h2>
+  <p class="cta-sub">Lesson one takes five minutes. No signup required to start. No real money involved — ever.</p>
+  <div class="cta-pill-row">
+    <div class="cta-pill">✓ Free forever</div>
+    <div class="cta-pill">✓ No credit card</div>
+    <div class="cta-pill">✓ Works on mobile</div>
+    <div class="cta-pill">✓ No real funds</div>
+  </div>
+  <a href="https://perps-quest.vercel.app" class="cta-btn-big">Start Learning for Free →</a>
+  <div class="cta-footnote">perpsquest.app · Built for anyone curious about crypto derivatives</div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-logo">Perps<em>Quest</em></div>
+  <div class="foot-copy">© 2026 Perps Quest · Free forever</div>
+  <div class="foot-links">
+    <a href="https://perps-quest.vercel.app">App</a>
+    <a href="#lessons">Curriculum</a>
+    <a href="mailto:hello@perpsquest.app">Contact</a>
+  </div>
+</footer>
+
+</div>
+
+<script>
+/* ── MINI CHART ── */
+function drawMiniChart() {
+  const canvas = document.getElementById('miniChart');
+  if (!canvas) return;
+  const wrap = canvas.parentElement;
+  const W = wrap.clientWidth, H = 70;
+  canvas.width = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  // Synthetic price line
+  const pts = [];
+  let p = 91000;
+  for (let i = 0; i < 60; i++) {
+    p += (Math.random() - 0.45) * 600 + Math.sin(i * 0.2) * 200;
+    pts.push(Math.round(p));
+  }
+  pts.push(95420);
+
+  const mn = Math.min(...pts) - 300, mx = Math.max(...pts) + 300;
+  const sy = v => H - ((v - mn) / (mx - mn)) * H * 0.9 - H * 0.05;
+  const sx = i => (i / (pts.length - 1)) * W;
+
+  const isUp = pts[pts.length - 1] >= pts[0];
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, isUp ? 'rgba(78,168,122,0.2)' : 'rgba(212,90,90,0.2)');
+  grad.addColorStop(1, 'rgba(0,0,0,0)');
+
+  ctx.beginPath();
+  ctx.moveTo(sx(0), sy(pts[0]));
+  pts.forEach((v, i) => ctx.lineTo(sx(i), sy(v)));
+  ctx.lineTo(sx(pts.length - 1), H); ctx.lineTo(0, H);
+  ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(sx(0), sy(pts[0]));
+  pts.forEach((v, i) => ctx.lineTo(sx(i), sy(v)));
+  ctx.strokeStyle = isUp ? '#4ea87a' : '#d45a5a';
+  ctx.lineWidth = 1.5; ctx.stroke();
+}
+drawMiniChart();
+
+/* ── FUNDING TIMER ── */
+let secs = 28642;
+setInterval(() => {
+  secs = (secs - 1 + 28800) % 28800;
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  const s = secs % 60;
+  const el = document.getElementById('fundingTimer');
+  if (el) el.textContent = `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}, 1000);
+
+/* ── SIMULATED P&L FLICKER ── */
+let basePnl = 248;
+setInterval(() => {
+  basePnl += (Math.random() - 0.48) * 8;
+  const el = document.getElementById('simPnl');
+  if (el) {
+    el.textContent = (basePnl >= 0 ? '+' : '') + '$' + Math.abs(basePnl).toFixed(0);
+    el.className = 'sp-cell-val ' + (basePnl >= 0 ? 'pos' : 'neg');
+  }
+}, 2000);
+
+/* ── SCROLL REVEALS ── */
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+/* ── TICKER PRICES ── */
+let btc = 95420, eth = 3218, sol = 148;
+setInterval(() => {
+  btc += (Math.random() - 0.5) * 120;
+  eth += (Math.random() - 0.5) * 18;
+  sol += (Math.random() - 0.5) * 1.2;
+  ['t1','t4'].forEach(id => { const e = document.getElementById(id); if(e) e.textContent = '$'+Math.round(btc).toLocaleString(); });
+  ['t2','t5'].forEach(id => { const e = document.getElementById(id); if(e) e.textContent = '$'+Math.round(eth).toLocaleString(); });
+  ['t3','t6'].forEach(id => { const e = document.getElementById(id); if(e) e.textContent = '$'+sol.toFixed(2); });
+  const hp = document.getElementById('heroPrice');
+  if (hp) hp.textContent = '$' + Math.round(btc).toLocaleString();
+  const hpc = document.getElementById('heroPriceChange');
+  if (hpc) {
+    const pct = ((btc - 93200) / 93200 * 100).toFixed(1);
+    hpc.textContent = (pct >= 0 ? '+' : '') + pct + '% today';
+    hpc.style.color = pct >= 0 ? 'var(--green)' : 'var(--red)';
+  }
+}, 3000);
+</script>
+</body>
+</html>
